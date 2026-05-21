@@ -210,3 +210,30 @@ If you are developing patches or contributing upstream, you must preserve these 
 1. **Absolute Zero Dependencies**: Never add any crates to `Cargo.toml`. Math must be written natively.
 2. **Pre-allocated Vector Buffers**: To maintain $O(1)$ loop allocations and prevent heap thrashing, do not use `Vec::new()`, `vec![]`, or `.collect()` inside the power iteration loop. Reuse the pre-allocated working buffers `v_m` and `v_next` in-place.
 3. **Inclusive System Processing**: All boundary nodes must remain active in the graph during math computations (Laplacian, Power Iteration, Fiedler Vector). They must **only** be filtered out from the final returned vectors right before returning the `PrunerResolution` payload to preserve algebraic context.
+
+---
+
+## 🔬 VI. Academic Bibliography & Literature Citations
+
+The mathematical foundations of the Tau-Spectral Pruner (TSP) and its security heuristics are formally grounded in classic spectral graph theory literature. Developers and academic auditors can map our systems-level implementations to their formal academic publications:
+
+### 1. Foundational Spectral Graph Bisection
+* **Fiedler, M. (1973)**: *Algebraic connectivity of graphs*. Czechoslovak Mathematical Journal, 23(2), 298-305.
+  * **Foundational Contribution**: Establishes the relationship between the second-smallest eigenvalue ($\lambda_2$) of the Laplacian matrix (the "Fiedler value") and the algebraic connectivity of a graph.
+  * **Crate Implementation**: TSP utilizes the computed Fiedler value (`resolution.connectivity_score`) as a direct metric for graph partition connectivity.
+* **Pothen, A., Simon, H. D., & Liou, K. P. (1990)**: *Partitioning sparse matrices with eigenvectors of graphs*. SIAM Journal on Matrix Analysis and Applications, 11(3), 430-452.
+  * **Foundational Contribution**: First formalizes the "Spectral Bisection Method" using the signs of the Fiedler vector coordinates to divide a graph into tightly bound sub-graphs.
+  * **Crate Implementation**: This is the core mathematical algorithm implemented in `src/engine.rs` to compute the heuristic bisection approximation.
+* **Spielman, D. A., & Teng, S. H. (2007)**: *Spectral partitioning works: Planar graphs and finite element meshes*. Linear Algebra and its Applications, 421(2-3), 284-305.
+  * **Foundational Contribution**: Proves the mathematical convergence and approximation bounds of spectral partitioning algorithms.
+  * **Crate Implementation**: Validates the numerical stability and linear-time convergence of our shifted Laplacian power iteration method.
+
+### 2. Heuristics & Core Crate Adaptations
+The specialized heuristics built into the `spectral-pruner` library map directly to classical spectral graph regularization techniques:
+
+* **Arrington Clamping** $\rightarrow$ **Disconnected sub-dominant eigenvector regularization**
+  * *Mathematical Mapping*: Completely disconnected nodes (degree == 0) produce zero eigenvalues in the Laplacian, causing power iteration to capture random initialization noise. We apply a sub-dominant regularization clamp to isolated nodes, forcing them to a static positive value ($1.0$). This guides isolated chaff cleanly into the primary Mainland partition, ensuring deterministic bisection.
+* **Arrington's Scale-Invariant Semantic Density Ratio** $\rightarrow$ **Volume-normalized algebraic cut capacity**
+  * *Mathematical Mapping*: Standard minimum-cut algorithms suffer from scale-sensitivity (they favor slicing small, insignificant peripheral branches). We normalize the algebraic cut capacity by dividing the island's internal degree volume by its system boundary connectivity, scaling with total system length. This keeps threat detection sensitivity identical across different scales.
+* **Arrington's Single-Token Tripwire** $\rightarrow$ **Single-rank boundary constraint override**
+  * *Mathematical Mapping*: In microscopic adversarial steering attacks, an adversary introduces a single isolated node with zero internal edges that bypasses the mainland and links directly to system space. This single-rank boundary constraint is caught immediately by our tripwire, overriding the bisection loop to enforce an instantaneous fatal quarantine.

@@ -128,7 +128,8 @@ impl TauSpectralPruner {
         }
     }
 
-    /// Evaluates a provided network topology and computes an optimal containment policy.
+    /// Computes a polynomial-time spectral bisection heuristic approximation of the network topology
+    /// via the Fiedler vector to determine containment policy.
     #[allow(clippy::needless_range_loop)]
     pub fn prune(
         &self,
@@ -170,6 +171,8 @@ impl TauSpectralPruner {
         }
 
         // 2. Heavy-Ball Momentum Shifted Laplacian Power Iteration
+        // Note: Memory allocation of scratch vectors is O(N) at the function call boundary,
+        // but their buffers are mutated entirely in-place to achieve zero allocations inside the iterative loop.
         let alpha = 1.0 / (2.0 * max_degree + 1.1);
         let mut v_vec = vec![0.0; n];
 
@@ -355,11 +358,13 @@ impl TauSpectralPruner {
             island_len == 1.0 && internal == 0.0 && to_system > 0.0 && to_system < 2.0;
 
         // 5. Policy Enforcement Decision Processing
-        println!(
-            "DEBUG: island={:?}, mainland={:?}, fiedler={:?}",
-            island, mainland, v_vec
-        );
-        println!("DEBUG: to_system={}, internal={}, normalized_ratio={}, instruction_neglect={}, is_control_vector={}", to_system, internal, normalized_ratio, instruction_neglect, is_control_vector);
+        if cfg!(debug_assertions) {
+            println!(
+                "DEBUG: island={:?}, mainland={:?}, fiedler={:?}",
+                island, mainland, v_vec
+            );
+            println!("DEBUG: to_system={}, internal={}, normalized_ratio={}, instruction_neglect={}, is_control_vector={}", to_system, internal, normalized_ratio, instruction_neglect, is_control_vector);
+        }
         let action = if island_local_nodes.is_empty() || system_boundary_len == 0 {
             PolicyAction::Allow
         } else if normalized_ratio > self.threat_threshold
@@ -370,7 +375,9 @@ impl TauSpectralPruner {
         } else {
             PolicyAction::GarbageCollect
         };
-        println!("DEBUG: action={:?}", action);
+        if cfg!(debug_assertions) {
+            println!("DEBUG: action={:?}", action);
+        }
 
         // Exclude system boundary nodes from the final returned vectors,
         // but keep them in the classification internally for correct threat metrics.

@@ -92,10 +92,11 @@ cargo run
 
 ## 🧭 Core Mathematical Foundations
 
-TSP is built on mathematical rigor, avoiding general-purpose heuristics to guarantee absolute determinism and repeatable containment execution.
+TSP is built on mathematical rigor, utilizing structured spectral graph bisection heuristics as a polynomial-time approximation for graph partitioning, guaranteeing absolute determinism and repeatable containment execution.
 
 ### 1. Heavy-Ball Momentum Shifted Laplacian Power Iteration
 To compute the **Fiedler vector** (the eigenvector corresponding to the second smallest eigenvalue of the graph Laplacian $\lambda_2$), TSP implements an accelerated power iteration method:
+* **Zero-Allocation Hot Iterative Loop**: While scratch vector buffers are allocated once on the function boundary ($O(N)$ memory setup), all mathematical calculations inside the power iteration hot loop mutate these vectors entirely in-place to ensure zero heap allocations during iteration steps, preventing heap fragmentation and allocator overhead.
 * **Zero-Degree Clamping Regularization**: The initial vector breaks spatial symmetry by assigning $v_i = \sin(i)$ to linked nodes. Disconnected nodes (degree == 0) are clamped to a static positive constant $1.0$. This **Zero-Degree Clamping** method regularizes power iteration against initialization noise, guiding isolated chaff predictably into the Mainland partition.
 * **Heavy-Ball Acceleration**: Momentum injection ($\beta = 0.5$) bypasses algebraic noise and speeds up convergence across high-diameter topologies.
 * **Null-Space Projection**: A continuous zero steady-state mean projection is applied at every step to prevent convergence drift.
