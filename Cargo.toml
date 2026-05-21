@@ -1,0 +1,14 @@
+[package]
+name = "spectral-pruner"
+version = "1.0.0"
+edition = "2021"
+authors = ["Stephan Arrington"]
+description = "A lightweight, zero-dependency library utilizing Spectral Graph Theory to isolate topological network anomalies."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/steph4n-gh/spectral-pruner"
+readme = "README.md"
+keywords = ["spectral", "graph", "fiedler", "zero-trust", "topology"]
+categories = ["algorithms", "science", "cryptography"]
+
+[dependencies]
+# Absolute Zero Dependencies mandated.
