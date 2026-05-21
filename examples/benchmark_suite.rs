@@ -4,8 +4,8 @@
 //! without external benchmarking dependencies. Proves systems-level speed and
 //! zero-allocation hot-loop performance.
 
+use spectral_pruner::{TauSpectralPruner, Topology};
 use std::time::Instant;
-use spectral_pruner::{Topology, TauSpectralPruner};
 
 // ANSI color codes for premium design aesthetics
 const RESET: &str = "\x1B[0m";
@@ -20,15 +20,24 @@ fn main() {
     println!("==========================================================================");
     println!("         ⚡ [τ-Gate] HIGH-RESOLUTION ZERO-ALLOCATION BENCHMARK ⚡        ");
     println!("==========================================================================");
-    println!("{}Testing mathematical Fiedler vector convergence, latency, and memory footprint.\n", RESET);
+    println!(
+        "{}Testing mathematical Fiedler vector convergence, latency, and memory footprint.\n",
+        RESET
+    );
 
     // Warm-up to wake up OS scheduler and CPU scaling governor
     warmup();
 
     let sizes = [10, 100, 500];
 
-    println!("{}{}[+] 1. CLIQUE TOPOLOGY (Fully Connected Crate Clusters){}", BOLD, YELLOW, RESET);
-    println!("{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}", BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET);
+    println!(
+        "{}{}[+] 1. CLIQUE TOPOLOGY (Fully Connected Crate Clusters){}",
+        BOLD, YELLOW, RESET
+    );
+    println!(
+        "{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}",
+        BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET
+    );
     println!("|-------|--------------|--------------|--------------|--------------|");
     for &n in &sizes {
         let mut topo = Topology::new(n);
@@ -46,8 +55,14 @@ fn main() {
     }
     println!();
 
-    println!("{}{}[+] 2. STAR TOPOLOGY (Hub-and-Spoke Orchestrator Modules){}", BOLD, YELLOW, RESET);
-    println!("{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}", BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET);
+    println!(
+        "{}{}[+] 2. STAR TOPOLOGY (Hub-and-Spoke Orchestrator Modules){}",
+        BOLD, YELLOW, RESET
+    );
+    println!(
+        "{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}",
+        BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET
+    );
     println!("|-------|--------------|--------------|--------------|--------------|");
     for &n in &sizes {
         let mut topo = Topology::new(n);
@@ -63,8 +78,14 @@ fn main() {
     }
     println!();
 
-    println!("{}{}[+] 3. DECOUPLED TWO-CLUSTER TOPOLOGY (Fiedler Target Partition){}", BOLD, YELLOW, RESET);
-    println!("{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}", BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET);
+    println!(
+        "{}{}[+] 3. DECOUPLED TWO-CLUSTER TOPOLOGY (Fiedler Target Partition){}",
+        BOLD, YELLOW, RESET
+    );
+    println!(
+        "{}{}| {:<5} | {:<12} | {:<12} | {:<12} | {:<12} |{}",
+        BOLD, BLUE, "N", "Edges", "Min (µs)", "Mean (µs)", "Max (µs)", RESET
+    );
     println!("|-------|--------------|--------------|--------------|--------------|");
     for &n in &sizes {
         let mut topo = Topology::new(n);
@@ -100,11 +121,20 @@ fn main() {
     println!("              🛡️ MEMORY ALLOCATION & SYSTEMS GUARANTEES 🛡️            ");
     println!("==========================================================================");
     println!("{}", RESET);
-    println!(" {}[+] Call Boundary Footprint:{} O(N) allocation of helper vectors.", GREEN, RESET);
+    println!(
+        " {}[+] Call Boundary Footprint:{} O(N) allocation of helper vectors.",
+        GREEN, RESET
+    );
     println!("     All scratch spaces are generated exactly once per `prune()` call.");
-    println!(" {}[+] Hot Iteration Loop:      {} STRICTLY ZERO HEAP ALLOCATIONS.", GREEN, RESET);
+    println!(
+        " {}[+] Hot Iteration Loop:      {} STRICTLY ZERO HEAP ALLOCATIONS.",
+        GREEN, RESET
+    );
     println!("     Vector slices copy in-place. Zero `push()`, zero `realloc()`, zero thrashing.");
-    println!(" {}[+] Computational Complexity:{} O(I * (N + E)) where I = iterations, E = edges.", GREEN, RESET);
+    println!(
+        " {}[+] Computational Complexity:{} O(I * (N + E)) where I = iterations, E = edges.",
+        GREEN, RESET
+    );
     println!("     Extremely linear memory layouts ensure maximum L1/L2 cache locality.");
     println!("==========================================================================");
 }
@@ -116,9 +146,7 @@ fn warmup() {
     topo.add_edge(2, 3);
     topo.add_edge(3, 4);
 
-    let pruner = TauSpectralPruner::builder()
-        .max_iterations(100)
-        .build();
+    let pruner = TauSpectralPruner::builder().max_iterations(100).build();
 
     for _ in 0..100 {
         let _ = pruner.prune(&topo, 0);

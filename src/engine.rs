@@ -128,7 +128,7 @@ impl TauSpectralPruner {
         }
     }
 
-    /// Computes a polynomial-time spectral bisection heuristic approximation of the network topology 
+    /// Computes a polynomial-time spectral bisection heuristic approximation of the network topology
     /// via the Fiedler vector to determine containment policy.
     #[allow(clippy::needless_range_loop)]
     pub fn prune(

@@ -5,9 +5,9 @@
 //! dependency graph, run the Fiedler bisection solver, and audit the software
 //! supply chain for topological isolation anomalies.
 
+use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology};
 use std::collections::{HashMap, HashSet};
 use std::fs;
-use spectral_pruner::{Topology, TauSpectralPruner, PolicyAction};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("==========================================================================");
@@ -19,18 +19,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let lock_path = "Cargo.lock";
     println!("[+] Reading active lockfile from: {}", lock_path);
     let lock_content = fs::read_to_string(lock_path)?;
-    
+
     // Simple line-by-line parser state machine
     let mut local_packages = Vec::new();
     for line in lock_content.lines() {
         let trimmed = line.trim();
         if trimmed.starts_with("name = \"") {
-            if let Some(name) = trimmed.strip_prefix("name = \"").and_then(|s| s.strip_suffix("\"")) {
+            if let Some(name) = trimmed
+                .strip_prefix("name = \"")
+                .and_then(|s| s.strip_suffix("\""))
+            {
                 local_packages.push(name.to_string());
             }
         }
     }
-    println!("[+] Found local packages under tracking: {:?}", local_packages);
+    println!(
+        "[+] Found local packages under tracking: {:?}",
+        local_packages
+    );
 
     // 2. Synthesize a realistic production workspace (since our core library is strictly zero-dependency)
     // We map a multi-crate systems workspace:
@@ -38,9 +44,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Island:   untrusted-leftpad-utility
     // System:   libc, compiler-linker
     println!("\n[+] Constructing high-dimensional production workspace dependency tree...");
-    
+
     let mut registry = DependencyRegistry::new();
-    
+
     // Add stable production mainland cluster
     registry.add_dependency("app-core", "axum");
     registry.add_dependency("app-core", "tower");
@@ -63,8 +69,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (topology, package_names, system_start_idx) = registry.compile();
 
     println!("[+] Dependency graph successfully compiled:");
-    println!("    -> Active unique dependency packages: {} nodes", package_names.len());
-    println!("    -> System boundaries start at index : {}", system_start_idx);
+    println!(
+        "    -> Active unique dependency packages: {} nodes",
+        package_names.len()
+    );
+    println!(
+        "    -> System boundaries start at index : {}",
+        system_start_idx
+    );
 
     // Print dependency relationships
     println!("\n                    --- WORKSPACE DEPENDENCY LINKAGE GRAPH ---");
@@ -74,8 +86,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 4. Configure the Tau-Spectral Pruner
     let pruner = TauSpectralPruner::builder()
-        .tau(0.0)                  // Numerical bisection partition boundary
-        .threat_threshold(1.5)     // Sensitivity density ratio
+        .tau(0.0) // Numerical bisection partition boundary
+        .threat_threshold(1.5) // Sensitivity density ratio
         .system_start_idx(system_start_idx)
         .build();
 
@@ -88,16 +100,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("                  🚨 SUPPLY CHAIN SECURITY AUDIT REPORT 🚨                 ");
     println!("==========================================================================");
     println!("Audit Action Verdict       : {}", resolution.action);
-    println!("Algebraic Connectivity (λ₂): {:.8}", resolution.connectivity_score);
+    println!(
+        "Algebraic Connectivity (λ₂): {:.8}",
+        resolution.connectivity_score
+    );
     println!("--------------------------------------------------------------------------");
-    
-    println!("Secured Mainland Packages ({} crates safely approved):", resolution.mainland_nodes.len());
+
+    println!(
+        "Secured Mainland Packages ({} crates safely approved):",
+        resolution.mainland_nodes.len()
+    );
     for &id in &resolution.mainland_nodes {
         println!("  ✓ [{:02}] {}", id, package_names[id]);
     }
     println!("--------------------------------------------------------------------------");
-    
-    println!("Quarantined Malicious/Anomalous Packages ({} crates isolated):", resolution.island_nodes.len());
+
+    println!(
+        "Quarantined Malicious/Anomalous Packages ({} crates isolated):",
+        resolution.island_nodes.len()
+    );
     for &id in &resolution.island_nodes {
         println!("  ⚠️ [{:02}] {}", id, package_names[id]);
     }
