@@ -198,6 +198,115 @@ pub struct CsrGraph {
     pub degrees: Vec<f64>,
 }
 
+/// Weighted Compressed Sparse Row graph used by the spectral engine.
+///
+/// This representation intentionally lives alongside [`CsrGraph`] so the
+/// original unweighted public API remains source-compatible. Unweighted edges
+/// are represented with a weight of `1.0` when compiled into this structure.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WeightedCsrGraph {
+    pub num_nodes: usize,
+    pub row_ptrs: Vec<usize>,
+    pub col_indices: Vec<usize>,
+    pub weights: Vec<f64>,
+    pub degrees: Vec<f64>,
+}
+
+impl WeightedCsrGraph {
+    /// Compiles unweighted and weighted topology edges into reusable CSR
+    /// buffers. Invalid endpoints, self-loops, sink edges, and non-positive or
+    /// non-finite weights are ignored. The pruning engine validates weights
+    /// before calling this function so malformed weighted inputs are reported
+    /// to callers rather than silently accepted.
+    #[allow(clippy::too_many_arguments)]
+    pub fn compile_into(
+        topo: &crate::engine::Topology,
+        sink_bits: &BitSet,
+        row_ptrs: &mut Vec<usize>,
+        col_indices: &mut Vec<usize>,
+        weights: &mut Vec<f64>,
+        degrees: &mut Vec<f64>,
+        cursor: &mut Vec<usize>,
+    ) {
+        let n = topo.num_nodes;
+
+        row_ptrs.clear();
+        row_ptrs.resize(n + 1, 0);
+
+        degrees.clear();
+        degrees.resize(n, 0.0);
+
+        let mut count_edge = |u: usize, v: usize, weight: f64| {
+            if u < n
+                && v < n
+                && u != v
+                && !sink_bits.contains(u)
+                && !sink_bits.contains(v)
+                && weight.is_finite()
+                && weight > 0.0
+            {
+                row_ptrs[u + 1] += 1;
+                row_ptrs[v + 1] += 1;
+                degrees[u] += weight;
+                degrees[v] += weight;
+            }
+        };
+
+        for &(u, v) in &topo.edges {
+            count_edge(u, v, 1.0);
+        }
+        for &(u, v, weight) in &topo.weighted_edges {
+            count_edge(u, v, weight);
+        }
+
+        for i in 0..n {
+            row_ptrs[i + 1] += row_ptrs[i];
+        }
+
+        let total_half_edges = row_ptrs[n];
+        col_indices.clear();
+        col_indices.resize(total_half_edges, 0);
+        weights.clear();
+        weights.resize(total_half_edges, 0.0);
+
+        cursor.clear();
+        cursor.extend_from_slice(&row_ptrs[..n]);
+
+        let write_edge = |u: usize,
+                          v: usize,
+                          weight: f64,
+                          col_indices: &mut Vec<usize>,
+                          weights: &mut Vec<f64>,
+                          cursor: &mut Vec<usize>| {
+            if u < n
+                && v < n
+                && u != v
+                && !sink_bits.contains(u)
+                && !sink_bits.contains(v)
+                && weight.is_finite()
+                && weight > 0.0
+            {
+                let pos_u = cursor[u];
+                col_indices[pos_u] = v;
+                weights[pos_u] = weight;
+                cursor[u] += 1;
+
+                let pos_v = cursor[v];
+                col_indices[pos_v] = u;
+                weights[pos_v] = weight;
+                cursor[v] += 1;
+            }
+        };
+
+        for &(u, v) in &topo.edges {
+            write_edge(u, v, 1.0, col_indices, weights, cursor);
+        }
+        for &(u, v, weight) in &topo.weighted_edges {
+            write_edge(u, v, weight, col_indices, weights, cursor);
+        }
+    }
+}
+
 impl CsrGraph {
     /// Creates an empty CSR graph with `num_nodes` and 0 edges.
     pub fn empty(num_nodes: usize) -> Self {

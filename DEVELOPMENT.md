@@ -1,239 +1,122 @@
-# 🛠️ Tau-Spectral Pruner (TSP) — Developer & DX Manifesto
+# spectral-pruner development guide
 
-Welcome to the `spectral-pruner` Developer Guide. This document is designed for systems engineers, security researchers, and mathematical contributors looking to **utilize** the framework inside high-throughput runtimes or **extend** the underlying spectral engines for custom security audits.
+## Design boundary
 
-> [!NOTE]
-> For consumer installation, quickstart examples, mathematical theory breakdowns, and practical showcases, please refer to the primary [README.md](README.md).
+The published Rust crate has zero external dependencies. Model integrations,
+dataset readers, dense numerical oracles, and report generation belong under
+`research/`; they must not leak into `Cargo.toml`.
 
----
-
-## 🧭 I. Architecture & Codebase Map
-
-The codebase is built for extreme efficiency and mathematical clarity. Here is the layout of the core components:
+The implementation deliberately stays small:
 
 ```text
-spectral-pruner/
-├── AGENTS.md            # Manifest file guiding developer AI agents on core invariants.
-├── Cargo.toml           # Package metadata, targeting zero external dependencies.
-├── DEVELOPMENT.md       # This document (DX, integration, and extension specs).
-├── README.md            # Consumer quickstart, mathematical theory, and visual examples.
-├── examples/            # High-fidelity system integrations (LLM, DeFi, ZK, Service Mesh, etc.)
-└── src/
-    ├── lib.rs           # Crate entry point, exposing core types and builder structures.
-    └── engine.rs        # Core math engine (shifted Laplacian power iteration, clamping, metrics).
+Topology
+  -> weighted CSR compilation
+  -> shifted-Laplacian iteration with null-space projection
+  -> injected-tau partition
+  -> weighted boundary and partition diagnostics
+  -> independently auditable policy triggers
 ```
 
-### Core Pipeline Lifecycle
-When `TauSpectralPruner::prune` is executed, the following high-level sequence occurs:
+## Non-negotiable invariants
 
-```mermaid
-graph TD
-    A[Raw Graph/Topology] --> B[Laplacian Compilation]
-    B --> C[Zero-Degree Clamping Regularization]
-    C --> D[Null-Space Projection Iteration]
-    D --> E[Fiedler Vector Calculation]
-    E --> F[tau-Boundary Separation]
-    F --> G[Dynamic System Boundary Filtering]
-    G --> H[Island Analysis]
-    H --> I{Tripwire Triggered?}
-    I -- Yes --> J[Immediate FATAL_BLOCK Quarantine]
-    I -- No --> K[Scale-Invariant Cluster Density Check]
-    K --> L[Policy Verdict Generation]
-```
+1. Every active non-sink node is classified, including degree-zero nodes.
+2. Degree-zero nodes retain deterministic positive initialization clamping.
+3. Partitioning uses the injected `tau`; do not substitute a median, sweep, or
+   maximum-gap cut.
+4. Protected system nodes stay active through CSR compilation, iteration,
+   partitioning, and metrics. Filter them only from returned node vectors.
+5. The signature density ratio remains
+   `(internal_weight * system_node_count) /
+   (system_weight * island_node_count)`.
+6. The single-token tripwire remains exact: one local island node, zero internal
+   weight, and system weight strictly between zero and two.
+7. Do not add Rust dependencies.
 
----
+## Graph input
 
-## ⚡ II. Utilizing the Crate (Integration Patterns)
+`Topology::add_edge` creates an undirected unit-weight edge.
+`Topology::add_weighted_edge` creates an undirected weighted edge. The pruning
+boundary rejects zero, negative, infinite, and NaN weights even if a caller
+mutates the public vector directly.
 
-For general utilization, you will construct a `Topology` and configure a `TauSpectralPruner` instance.
+Parallel submitted edges are additive. Self-loops, invalid endpoints, and edges
+touching sinks are excluded from CSR processing. Protected system nodes override
+sink membership and remain active.
 
-### 1. Programmatic Graph Construction
-A topology represents a causal relational graph. The library uses 0-indexed nodes:
+`system_start_idx..=system_end` is inclusive. `system_end == 0` disables system
+policy. A nonzero interval with no valid start fails closed and is surfaced by
+`boundary_configuration_valid`.
+
+## Diagnostics and policy
+
+`PrunerResolution::connectivity_score` is the λ₂ estimate. The returned
+`PrunerDiagnostics` includes:
+
+- actual island and system node counts;
+- internal, system-boundary, and partition-cut weights;
+- island volume and weighted conductance;
+- internal and boundary possible-edge densities;
+- signature and possible-edge density ratios;
+- instruction connection;
+- one boolean for every policy trigger.
+
+The optional `.connectivity_threshold(value)` supports a calibrated λ₂ policy.
+Use `.spectral_only()` to disable density, neglect, and tripwire triggers while
+retaining any configured connectivity threshold.
+
+## Workspace and allocation scope
+
+`PrunerWorkspace` reuses eigensolver vectors, bitsets, CSR rows, weighted CSR
+entries, degrees, and cursors. Pre-size it with:
 
 ```rust
-use spectral_pruner::{Topology, TauSpectralPruner, PolicyAction};
-
-fn run_audit() -> Result<(), spectral_pruner::PrunerError> {
-    // 1. Initialize a topology of 8 nodes
-    let mut topology = Topology::new(8);
-    
-    // 2. Establish dense mainland communication (Nodes 0, 1, 2, 3)
-    topology.add_edge(0, 1);
-    topology.add_edge(1, 2);
-    topology.add_edge(2, 3);
-    topology.add_edge(3, 0);
-
-    // 3. Establish an anomalous decoupled island (Node 4) communicating with system space (Node 7)
-    topology.add_edge(4, 7);
-    
-    // 4. Mark nodes 6 and 7 as system boundary nodes (e.g. databases, outbound network sockets)
-    topology.add_sink(6);
-    topology.add_sink(7);
-
-    // 5. Build the pruner
-    let pruner = TauSpectralPruner::builder()
-        .tau(0.0)                  // Numerical bisection partition boundary
-        .threat_threshold(1.5)     // Sensitivity density ratio limit
-        .system_start_idx(6)       // Tell the engine system boundaries start at Node 6
-        .build();
-
-    // 6. Audit up to node 7 (length of system context space = 8)
-    let resolution = pruner.prune(&topology, 8)?;
-
-    match resolution.action {
-        PolicyAction::FatalBlock => {
-            println!("🚨 Quarantined suspicious entities: {:?}", resolution.island_nodes);
-        }
-        PolicyAction::Allow => {
-            println!("✅ Graph structural integrity verified.");
-        }
-    }
-    Ok(())
-}
+let workspace = PrunerWorkspace::with_capacity(nodes, topology.edge_count());
 ```
 
-### 2. Inspecting Spectral Diagnostics
-For auditing, logging, or debugging, the `PrunerResolution` exposes granular mathematical metrics:
+The iterative eigensolver loop performs no heap allocation after these buffers
+are sized. End-to-end `prune_with_workspace` still allocates temporary and
+returned partition vectors. Do not describe the entire call as allocation-free.
 
-* `resolution.lambda2`: The second-smallest eigenvalue of the Laplacian (algebraic connectivity). A value of $0.0$ or near-zero indicates that the graph is disconnected (multiple components exist).
-* `resolution.island_nodes`: A `Vec<usize>` representing the isolated component nodes.
-* `resolution.mainland_nodes`: A `Vec<usize>` representing the stable mainland context.
-* `resolution.fiedler_vector`: The full computed Fiedler eigenvector of the graph, showing exactly where every node falls relative to the division.
+## Audit interchange
 
----
+`spectral-pruner-audit` reads three-column weighted TSV and emits schema-versioned
+JSON. A path of `-` streams TSV through stdin, allowing the Python attention
+extractor or another runtime to feed the Rust core without temporary files.
 
-## 🛠️ III. Extending the Mathematical Engine
+The CLI exposes the τ boundary, signature-density threshold, instruction
+threshold, optional connectivity threshold, all heuristic-disable switches, and
+repeatable sinks. Keep new output fields additive unless intentionally bumping
+the schema version.
 
-The core design allows for flexible modifications. The following sections detail how to extend the calculations in [src/engine.rs](file:///Volumes/Storage/bigworkspace/spectral-pruner/src/engine.rs).
+## Verification
 
-### 1. Custom Laplacian Regularization (Isolated Node Handling)
-By default, the library stabilizes disconnected (degree == 0) nodes using **Zero-Degree Clamping Regularization**:
-$$v_i = 1.0$$
-This forces isolated chaff to join the mainland predictably rather than staying stuck in random initialization noise.
+Before handing off a change, run:
 
-To extend or modify this regularization, open [src/engine.rs](file:///Volumes/Storage/bigworkspace/spectral-pruner/src/engine.rs) and locate the initial Fiedler vector assignment phase inside `prune`. 
-
-```rust
-// In src/engine.rs:
-// Swap this block if you want to implement custom initialization regularizations
-for i in 0..n {
-    if degrees[i] == 0.0 {
-        v_vec[i] = 1.0; // Standard Zero-Degree Clamping Regularization
-    } else {
-        v_vec[i] = (i as f64).sin();
-    }
-}
-```
-
-### 2. Modifying the Volume-Agnostic Density Metric
-The threat metric determines if an isolated island is an active exploit or benign chaff. The **Scale-Invariant Cluster Density Ratio** is calculated as:
-$$\text{Ratio} = \frac{\text{Internal Edges} \times N_{\text{system}}}{\text{System Edges} \times N_{\text{island}}}$$
-
-To add customized weightings (for example, applying quadratic decay on system edges to penalize massive bridges), edit the metric evaluation block:
-
-```rust
-// In src/engine.rs:
-let normalized_ratio = if to_system_edges > 0.0 {
-    // Standard scale-invariant calculation:
-    (island_internal_edges * system_boundary_len as f64) 
-        / (to_system_edges * island_len as f64)
-} else {
-    0.0
-};
-```
-If you wish to create a custom ratio that penalizes bridges heavily, you can adjust the denominator to scale non-linearly.
-
-### 3. Creating Custom Security Tripwires
-The **Micro-Steering Single-Token Tripwire** immediately quarantines islands matching:
-$$N_{\text{island}} == 1 \land \text{Internal Edges} == 0 \land 0.0 < \text{System Edges} < 2.0$$
-
-To add an additional custom tripwire (e.g., catching multi-node linear chains or circular paths with zero external links), insert a new check into the evaluation sequence in [src/engine.rs](file:///Volumes/Storage/bigworkspace/spectral-pruner/src/engine.rs):
-
-```rust
-// Example: Custom Multi-Node Circular Loop Tripwire
-let is_circular_tripwire = island_len == 3 
-    && island_internal_edges >= 3.0 
-    && to_system_edges == 0.0;
-
-if is_circular_tripwire {
-    action = PolicyAction::FatalBlock;
-}
-```
-
----
-
-## 🔬 IV. Developer Experience (DX) Commands
-
-A seamless DX ensures rapid cycles and prevents mathematical regressions. The following standard tools are available out-of-the-box:
-
-### 1. Build and Zero-Dependency Validation
-Ensure the crate compiles cleanly under standard Rust tooling:
-```bash
-cargo build
-```
-
-### 2. Running the Test Suite
-The crate maintains a high-coverage unit testing suite validating bisections, boundaries, and regularizations:
-```bash
-cargo test
-```
-
-### 3. Running Pre-bundled Production Showcases
-Execute the highly descriptive integration scripts in the `/examples` directory:
-```bash
-# Audit an LLM Prompt's self-attention matrix with a visual matrix heatmap
-cargo run --example llm_steerage_guard
-
-# Audit ZK-SNARK R1CS signal flows for constraints loopholes
-cargo run --example zk_circuit_backdoor
-
-# Audit DeFi mempools for flashloan sandwich loops
-cargo run --example defi_mempool_mev
-
-# Audit Kubernetes service mesh lateral communication links
-cargo run --example service_mesh_audit
-```
-
-### 4. Code Formatting and Lint Compliance
-To merge code back upstream, your changes must be clean of lint warnings and conform to standard formatting conventions:
-```bash
-cargo fmt --check
+```sh
+cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
+cargo test --all-targets
+cargo build --release --bin spectral-pruner-audit
+python3 -m py_compile research/*.py
+python3 research/numerical_oracle.py
 ```
 
----
+For measured performance, use `examples/attention_tsv_benchmark.rs` on an
+extracted graph and record the model revision, node/edge counts, warmup, runs,
+host, and release profile.
 
-## 🚫 V. Hard Structural Invariants
+## Research workflow
 
-If you are developing patches or contributing upstream, you must preserve these three absolute invariants. Violating them will trigger a structural regression:
+`research/README.md` is the operating guide. The intended evidence chain is:
 
-1. **Absolute Zero Dependencies**: Never add any crates to `Cargo.toml`. Math must be written natively.
-2. **Pre-allocated Vector Buffers**: To maintain $O(1)$ loop allocations and prevent heap thrashing, do not use `Vec::new()`, `vec![]`, or `.collect()` inside the power iteration loop. Reuse the pre-allocated working buffers `v_m` and `v_next` in-place.
-3. **Inclusive System Processing**: All boundary nodes must remain active in the graph during math computations (Laplacian, Power Iteration, Fiedler Vector). They must **only** be filtered out from the final returned vectors right before returning the `PrunerResolution` payload to preserve algebraic context.
+1. Extract real aggregate and per-layer attention graphs.
+2. Record exact model revision and prompt hash.
+3. Compare λ₂ with the dense NumPy oracle on synthetic weighted graphs.
+4. Evaluate untouched public splits with conductance, density, instruction
+   connection, token count, and layer-trajectory baselines.
+5. Choose operating thresholds only on the calibration split.
+6. Report mechanism-disabled ablations and cross-domain failures.
+7. Keep raw benchmark text out of prediction artifacts.
 
----
-
-## 🔬 VI. Academic Bibliography & Literature Citations
-
-The mathematical foundations of the Tau-Spectral Pruner (TSP) and its security heuristics are formally grounded in classic spectral graph theory literature. Developers and academic auditors can map our systems-level implementations to their formal academic publications:
-
-### 1. Foundational Spectral Graph Bisection
-* **Fiedler, M. (1973)**: *Algebraic connectivity of graphs*. Czechoslovak Mathematical Journal, 23(2), 298-305.
-  * **Foundational Contribution**: Establishes the relationship between the second-smallest eigenvalue ($\lambda_2$) of the Laplacian matrix (the "Fiedler value") and the algebraic connectivity of a graph.
-  * **Crate Implementation**: TSP utilizes the computed Fiedler value (`resolution.connectivity_score`) as a direct metric for graph partition connectivity.
-* **Pothen, A., Simon, H. D., & Liou, K. P. (1990)**: *Partitioning sparse matrices with eigenvectors of graphs*. SIAM Journal on Matrix Analysis and Applications, 11(3), 430-452.
-  * **Foundational Contribution**: First formalizes the "Spectral Bisection Method" using the signs of the Fiedler vector coordinates to divide a graph into tightly bound sub-graphs.
-  * **Crate Implementation**: This is the core mathematical algorithm implemented in `src/engine.rs` to compute the heuristic bisection approximation.
-* **Spielman, D. A., & Teng, S. H. (2007)**: *Spectral partitioning works: Planar graphs and finite element meshes*. Linear Algebra and its Applications, 421(2-3), 284-305.
-  * **Foundational Contribution**: Proves the mathematical convergence and approximation bounds of spectral partitioning algorithms.
-  * **Crate Implementation**: Validates the numerical stability and linear-time convergence of our shifted Laplacian power iteration method.
-
-### 2. Heuristics & Core Crate Adaptations
-The specialized heuristics built into the `spectral-pruner` library map directly to classical spectral graph regularization techniques:
-
-* **Arrington Clamping** $\rightarrow$ **Disconnected sub-dominant eigenvector regularization**
-  * *Mathematical Mapping*: Completely disconnected nodes (degree == 0) produce zero eigenvalues in the Laplacian, causing power iteration to capture random initialization noise. We apply a sub-dominant regularization clamp to isolated nodes, forcing them to a static positive value ($1.0$). This guides isolated chaff cleanly into the primary Mainland partition, ensuring deterministic bisection.
-* **Arrington's Scale-Invariant Semantic Density Ratio** $\rightarrow$ **Volume-normalized algebraic cut capacity**
-  * *Mathematical Mapping*: Standard minimum-cut algorithms suffer from scale-sensitivity (they favor slicing small, insignificant peripheral branches). We normalize the algebraic cut capacity by dividing the island's internal degree volume by its system boundary connectivity, scaling with total system length. This keeps threat detection sensitivity identical across different scales.
-* **Arrington's Single-Token Tripwire** $\rightarrow$ **Single-rank boundary constraint override**
-  * *Mathematical Mapping*: In microscopic adversarial steering attacks, an adversary introduces a single isolated node with zero internal edges that bypasses the mainland and links directly to system space. This single-rank boundary constraint is caught immediately by our tripwire, overriding the bisection loop to enforce an instantaneous fatal quarantine.
+Do not present a simulated example, synthetic role label, or test-split-tuned
+threshold as real security validation.

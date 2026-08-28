@@ -1,0 +1,6 @@
+# Research tooling only; the Rust crate retains zero runtime dependencies.
+numpy>=2.0
+torch>=2.4
+transformers>=4.45
+datasets>=3.0
+

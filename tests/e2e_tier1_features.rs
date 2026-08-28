@@ -1128,7 +1128,9 @@ mod feature_14_single_token_tripwire {
 
         let res = pruner.prune(&topo, 5).unwrap();
         // Since island length is 2, single-token tripwire is not the trigger
-        assert_eq!(res.action, PolicyAction::FatalBlock); // Tripped by neglect/ratio instead
+        assert_eq!(res.action, PolicyAction::GarbageCollect);
+        assert!(!res.diagnostics.single_token_triggered);
+        assert!(!res.diagnostics.density_triggered);
     }
 
     #[test]

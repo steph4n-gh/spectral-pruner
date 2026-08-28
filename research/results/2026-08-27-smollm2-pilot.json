@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "preliminary",
+  "date": "2026-08-27",
+  "model": {
+    "name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "layers": [26, 27, 28, 29],
+    "top_k": 8
+  },
+  "deepset": {
+    "train_examples": 546,
+    "test_examples": 116,
+    "train_fingerprint": "f6c6bd03578d7087",
+    "test_fingerprint": "987a7b749b1d6b24",
+    "dataset_revision": "4f61ecb038e9c3fb77e21034b22511b523772cdd",
+    "test_auroc": {
+      "negative_aggregate_lambda2": 0.8601190476190477,
+      "negative_layerwise_lambda2_mean": 0.862202380952381,
+      "token_count": 0.787797619047619,
+      "negative_conductance": 0.7125,
+      "signature_density_ratio": 0.6813988095238095,
+      "negative_instruction_connection": 0.712202380952381
+    },
+    "calibrated_connectivity_only": {
+      "lambda2_threshold": 0.27039336658227847,
+      "train_tpr": 0.5467980295566502,
+      "train_fpr": 0.09620991253644315,
+      "test_tpr": 0.5666666666666667,
+      "test_fpr": 0.07142857142857142,
+      "test_accuracy": 0.7413793103448276
+    },
+    "length_residualized_connectivity": {
+      "test_tpr": 0.5333333333333333,
+      "test_fpr": 0.07142857142857142,
+      "test_accuracy": 0.7241379310344828
+    }
+  },
+  "bipia_email_adaptation": {
+    "examples": 100,
+    "source_revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+    "negative_aggregate_lambda2_auroc": 0.5928,
+    "token_count_auroc": 0.5816,
+    "cross_domain_connectivity_threshold_tpr": 1.0,
+    "cross_domain_connectivity_threshold_fpr": 1.0
+  },
+  "numerical_oracle": {
+    "trials": 24,
+    "maximum_relative_error": 4.3337172258806364e-15
+  },
+  "core_benchmark": {
+    "nodes": 35,
+    "edges": 188,
+    "runs": 5000,
+    "mean_us": 1625.691546,
+    "p50_us": 1596.166,
+    "p95_us": 1694.792,
+    "p99_us": 1902.208
+  }
+}

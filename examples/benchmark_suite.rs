@@ -1,9 +1,9 @@
-//! ⚡ [τ-Gate] High-Resolution Zero-Allocation Performance Benchmark Suite
+//! ⚡ [τ-Gate] High-Resolution Workspace-Reuse Performance Benchmark Suite
 //!
 //! Production-grade microsecond latency percentiles (P50, P95, P99), throughput,
 //! and memory footprint verification for Spectral Graph Theory partitioning.
 //!
-//! Evaluates both allocating `prune()` and zero-allocation `prune_with_workspace()`
+//! Evaluates both allocating `prune()` and workspace-reusing `prune_with_workspace()`
 //! across Small, Medium, Large, and Streaming topologies without external dependencies.
 
 use spectral_pruner::{PrunerWorkspace, TauSpectralPruner, Topology};
@@ -82,7 +82,7 @@ fn profile_topology(
     }
     let alloc_stats = compute_stats(alloc_samples);
 
-    // 2. Profile zero-allocation prune_with_workspace()
+    // 2. Profile workspace-reusing prune_with_workspace()
     let mut ws = PrunerWorkspace::with_capacity(topo.num_nodes, topo.edges.len());
     let mut ws_samples = Vec::with_capacity(runs);
     for _ in 0..runs {
@@ -285,11 +285,11 @@ fn main() {
         GREEN, RESET
     );
     println!(
-        " {}[+] Reusable Memory Buffer:  {} `PrunerWorkspace` achieves true zero heap reallocations.",
+        " {}[+] Reusable Memory Buffer:  {} `PrunerWorkspace` reuses eigensolver and CSR buffers.",
         GREEN, RESET
     );
     println!(
-        " {}[+] Sub-Millisecond Latency: {} Full spectral Fiedler bisection runs in microseconds.",
+        " {}[+] Measured Latency:        {} See topology-specific percentile rows above.",
         GREEN, RESET
     );
     println!(

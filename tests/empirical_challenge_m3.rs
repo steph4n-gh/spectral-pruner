@@ -96,10 +96,8 @@ fn test_boundary_zero_system_boundary_len_allows_all() {
     assert!(!res.mainland_nodes.contains(&0) || !res.island_nodes.contains(&0));
 }
 
-/// Test boundary configuration: system_start_idx > system_boundary_len
-/// When system_start_idx > system_boundary_len > 0, the system interval [start, len] is empty.
-/// No nodes are classified as system nodes, so to_system == 0.
-/// Any isolated island decoupled from the mainland triggers FATAL_BLOCK via instruction neglect.
+/// An inverted system range is marked invalid and fails closed rather than
+/// silently changing the security policy.
 #[test]
 fn test_boundary_inverted_system_start_idx_greater_than_boundary_len() {
     let pruner = TauSpectralPruner::builder()
@@ -117,24 +115,8 @@ fn test_boundary_inverted_system_start_idx_greater_than_boundary_len() {
     topo.add_edge(3, 4);
 
     let res = pruner.prune(&topo, 5).unwrap();
-
-    // With boundary_len = 5 and system_start_idx = 20, system node set is empty.
-    // Island (3, 4) has to_system = 0 -> instruction_neglect = 0.0 < 0.1 -> FatalBlock
-    assert_eq!(
-        res.action,
-        PolicyAction::FatalBlock,
-        "Inverted boundary range with isolated island should trigger FatalBlock"
-    );
-
-    // Since system interval [20, 5] is empty, no nodes are stripped
-    let mut all_returned = res.mainland_nodes.clone();
-    all_returned.extend(&res.island_nodes);
-    all_returned.sort();
-    assert_eq!(
-        all_returned,
-        (0..5).collect::<Vec<usize>>(),
-        "No nodes should be stripped when system interval is empty"
-    );
+    assert_eq!(res.action, PolicyAction::FatalBlock);
+    assert!(!res.diagnostics.boundary_configuration_valid);
 }
 
 /// Test boundary configuration: system_start_idx == 0
@@ -279,11 +261,8 @@ fn test_boundary_system_start_idx_exceeds_num_nodes() {
     topo.add_edge(3, 4);
 
     let res = pruner.prune(&topo, 100).unwrap();
-
-    // Since system_start_idx = 50 and num_nodes = 6, no actual graph node is in [50, 100].
-    // System node set is empty -> to_system = 0 -> instruction neglect triggers FatalBlock
     assert_eq!(res.action, PolicyAction::FatalBlock);
-    assert_eq!(res.mainland_nodes.len() + res.island_nodes.len(), 6);
+    assert!(!res.diagnostics.boundary_configuration_valid);
 }
 
 /// Test boundary configuration with small graphs (N = 0, 1, 2) across arbitrary boundaries
@@ -475,7 +454,7 @@ fn test_adversarial_instruction_neglect_at_threshold_exact_boundary() {
 fn test_adversarial_dense_backdoor_clique_fatal_block() {
     let pruner = TauSpectralPruner::builder()
         .tau(0.0)
-        .threat_threshold(2.0)
+        .threat_threshold(0.5)
         .system_start_idx(10)
         .build();
 
@@ -515,30 +494,54 @@ fn test_adversarial_dense_backdoor_clique_fatal_block() {
 fn test_adversarial_scale_invariance_proportional_behavior() {
     let pruner = TauSpectralPruner::builder()
         .tau(0.0)
-        .threat_threshold(15.0)
-        .system_start_idx(10)
+        .threat_threshold(0.5)
+        .system_start_idx(7)
         .build();
 
-    // Scale 1: Ratio 18.0 > 15.0 -> FatalBlock
-    let mut topo1 = Topology::new(15);
-    for i in 0..4 {
-        for j in (i + 1)..4 {
+    // Scale A: mainland K5; island K2; two system nodes. Island and
+    // boundary densities are 1.0 and 0.5, respectively.
+    let mut topo1 = Topology::new(9);
+    for i in 0..5 {
+        for j in (i + 1)..5 {
             topo1.add_edge(i, j);
         }
     }
-    // Island (4..8) K4 clique: 6 edges
-    for i in 4..8 {
-        for j in (i + 1)..8 {
-            topo1.add_edge(i, j);
-        }
-    }
-    topo1.add_edge(4, 10);
-    topo1.add_edge(5, 11);
+    topo1.add_edge(5, 6);
+    topo1.add_edge(5, 7);
+    topo1.add_edge(6, 8);
 
-    let res1 = pruner.prune(&topo1, 12).unwrap();
-    // island_len = 4, system_len = 12, internal = 12, to_system = 2
-    // ratio = (12 * 12) / (2 * 4) = 144 / 8 = 18.0 > 15.0 => FatalBlock
+    let res1 = pruner.prune(&topo1, 8).unwrap();
     assert_eq!(res1.action, PolicyAction::FatalBlock);
+    assert!((res1.diagnostics.density_ratio - 0.5).abs() < 1e-12);
+
+    // Scale B reproduces the same signature ratio with twice as many island
+    // and system nodes.
+    let pruner2 = TauSpectralPruner::builder()
+        .tau(0.0)
+        .threat_threshold(0.5)
+        .system_start_idx(13)
+        .build();
+    let mut topo2 = Topology::new(17);
+    for i in 0..9 {
+        for j in (i + 1)..9 {
+            topo2.add_edge(i, j);
+        }
+    }
+    for i in 9..13 {
+        for j in (i + 1)..13 {
+            topo2.add_edge(i, j);
+        }
+    }
+    for i in 9..13 {
+        for offset in 0..3 {
+            topo2.add_edge(i, 13 + ((i - 9 + offset) % 4));
+        }
+    }
+
+    let res2 = pruner2.prune(&topo2, 16).unwrap();
+    assert_eq!(res2.action, PolicyAction::FatalBlock);
+    assert!((res2.diagnostics.density_ratio - 0.5).abs() < 1e-12);
+    assert!((res1.diagnostics.density_ratio - res2.diagnostics.density_ratio).abs() < 1e-12);
 }
 
 /// Test benign cluster garbage-collect verdict

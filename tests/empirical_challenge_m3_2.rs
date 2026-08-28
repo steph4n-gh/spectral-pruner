@@ -668,7 +668,7 @@ fn test_invariant_2_arrington_clamping_isolated_nodes() {
 fn test_invariant_3_scale_invariant_semantic_density_ratio() {
     // Ratio = (Internal Edges * N_system) / (System Edges * N_island)
     let pruner = TauSpectralPruner::builder()
-        .threat_threshold(3.0)
+        .threat_threshold(0.9)
         .system_start_idx(5)
         .build();
 
@@ -681,10 +681,12 @@ fn test_invariant_3_scale_invariant_semantic_density_ratio() {
     // Island (3, 4) with internal edge (3, 4) and system edge (3, 6)
     topo.add_edge(3, 4);
     topo.add_edge(3, 6);
-    // system_len = 6, island_len = 2, internal = 2, to_system = 1
-    // ratio = (2 * 6) / (1 * 2) = 6.0 > 3.0 -> FatalBlock
+    // system nodes = {5, 6}, island_len = 2, internal = 1, to_system = 1
+    // ratio = (1 * 2) / (1 * 2) = 1.0 > 0.9 -> FatalBlock
     let res = pruner.prune(&topo, 6).unwrap();
     assert_eq!(res.action, PolicyAction::FatalBlock);
+    assert_eq!(res.diagnostics.system_node_count, 2);
+    assert!((res.diagnostics.density_ratio - 1.0).abs() < 1e-12);
 }
 
 #[test]

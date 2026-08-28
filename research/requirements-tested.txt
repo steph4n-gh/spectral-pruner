@@ -1,0 +1,5 @@
+# Exact environment used for research/results/2026-08-27-smollm2-pilot.*
+numpy==2.4.6
+torch==2.12.0
+transformers==5.9.0
+datasets==5.0.0

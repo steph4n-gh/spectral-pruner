@@ -1,5 +1,5 @@
 use crate::error::{PrunerError, Result};
-use crate::graph::{BitSet, CsrGraph};
+use crate::graph::{BitSet, WeightedCsrGraph};
 use std::collections::BTreeSet;
 use std::fmt;
 
@@ -8,6 +8,9 @@ use std::fmt;
 pub struct Topology {
     pub num_nodes: usize,
     pub edges: Vec<(usize, usize)>,
+    /// Positive finite weighted edges. Unweighted edges in [`Self::edges`]
+    /// are interpreted as having weight `1.0`.
+    pub weighted_edges: Vec<(usize, usize, f64)>,
     pub sinks: BTreeSet<usize>,
 }
 
@@ -16,6 +19,7 @@ impl Topology {
         Self {
             num_nodes,
             edges: Vec::new(),
+            weighted_edges: Vec::new(),
             sinks: BTreeSet::new(),
         }
     }
@@ -24,6 +28,23 @@ impl Topology {
         if source < self.num_nodes && target < self.num_nodes {
             self.edges.push((source, target));
         }
+    }
+
+    /// Adds a weighted undirected edge.
+    ///
+    /// Endpoint validation mirrors [`Self::add_edge`]. Weight validation is
+    /// deliberately performed by the pruning boundary so direct mutation of
+    /// the public edge vectors cannot bypass it.
+    pub fn add_weighted_edge(&mut self, source: usize, target: usize, weight: f64) {
+        if source < self.num_nodes && target < self.num_nodes {
+            self.weighted_edges.push((source, target, weight));
+        }
+    }
+
+    /// Returns the total number of submitted unweighted and weighted edges.
+    #[inline]
+    pub fn edge_count(&self) -> usize {
+        self.edges.len() + self.weighted_edges.len()
     }
 
     pub fn add_sink(&mut self, node_index: usize) {
@@ -50,8 +71,8 @@ impl Topology {
     }
 }
 
-/// Reusable memory scratchpad enabling zero heap allocations during high-frequency
-/// or streaming spectral partitioning iterations.
+/// Reusable numeric and CSR scratchpad for high-frequency or streaming
+/// spectral partitioning. Returned and temporary partition vectors still allocate.
 #[derive(Debug, Clone)]
 pub struct PrunerWorkspace {
     /// Working eigenvector state vector $v$
@@ -70,6 +91,8 @@ pub struct PrunerWorkspace {
     pub csr_row_ptrs: Vec<usize>,
     /// CSR column indices scratchpad
     pub csr_col_indices: Vec<usize>,
+    /// CSR edge-weight scratchpad aligned with `csr_col_indices`
+    pub csr_weights: Vec<f64>,
     /// Node degrees scratchpad
     pub degrees: Vec<f64>,
     /// CSR compilation cursor scratchpad
@@ -88,6 +111,7 @@ impl PrunerWorkspace {
             island_bits: BitSet::new(0),
             csr_row_ptrs: Vec::new(),
             csr_col_indices: Vec::new(),
+            csr_weights: Vec::new(),
             degrees: Vec::new(),
             cursor: Vec::new(),
         }
@@ -105,6 +129,7 @@ impl PrunerWorkspace {
             island_bits: BitSet::with_capacity(num_nodes),
             csr_row_ptrs: Vec::with_capacity(num_nodes + 1),
             csr_col_indices: Vec::with_capacity(estimated_edges * 2),
+            csr_weights: Vec::with_capacity(estimated_edges * 2),
             degrees: Vec::with_capacity(num_nodes),
             cursor: Vec::with_capacity(num_nodes),
         }
@@ -145,6 +170,60 @@ pub struct PrunerResolution {
     pub mainland_nodes: Vec<usize>,
     pub island_nodes: Vec<usize>,
     pub connectivity_score: f64,
+    /// Auditable measurements used to derive `action`.
+    pub diagnostics: PrunerDiagnostics,
+}
+
+/// Machine-readable measurements and individual policy-trigger states.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PrunerDiagnostics {
+    pub boundary_configuration_valid: bool,
+    pub island_node_count: usize,
+    pub system_node_count: usize,
+    pub internal_weight: f64,
+    pub system_weight: f64,
+    /// Total edge weight crossing from the local island to its complement.
+    pub partition_cut_weight: f64,
+    /// Weighted degree volume of the local island.
+    pub island_volume: f64,
+    /// Standard weighted conductance of the local island partition.
+    pub conductance: f64,
+    pub internal_density: f64,
+    pub boundary_density: f64,
+    /// Ratio of possible-edge-normalized internal and system-boundary density.
+    pub possible_edge_density_ratio: f64,
+    /// Signature scale-normalized ratio: `(internal * system_nodes) /
+    /// (system_weight * island_nodes)`.
+    pub density_ratio: f64,
+    pub instruction_connection: f64,
+    pub connectivity_triggered: bool,
+    pub density_triggered: bool,
+    pub instruction_neglect_triggered: bool,
+    pub single_token_triggered: bool,
+}
+
+impl Default for PrunerDiagnostics {
+    fn default() -> Self {
+        Self {
+            boundary_configuration_valid: true,
+            island_node_count: 0,
+            system_node_count: 0,
+            internal_weight: 0.0,
+            system_weight: 0.0,
+            partition_cut_weight: 0.0,
+            island_volume: 0.0,
+            conductance: 0.0,
+            internal_density: 0.0,
+            boundary_density: 0.0,
+            possible_edge_density_ratio: 0.0,
+            density_ratio: 0.0,
+            instruction_connection: 0.0,
+            connectivity_triggered: false,
+            density_triggered: false,
+            instruction_neglect_triggered: false,
+            single_token_triggered: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -173,6 +252,11 @@ pub struct TauSpectralPruner {
     tolerance: f64,
     momentum_beta: f64,
     system_start_idx: usize,
+    connectivity_threshold: Option<f64>,
+    instruction_connection_threshold: f64,
+    density_ratio_enabled: bool,
+    instruction_neglect_enabled: bool,
+    single_token_tripwire_enabled: bool,
 }
 
 impl TauSpectralPruner {
@@ -210,11 +294,38 @@ impl TauSpectralPruner {
         self.system_start_idx
     }
 
+    /// Optional calibrated upper bound on algebraic connectivity. When set,
+    /// an island with `lambda_2 <= threshold` triggers containment.
+    #[inline]
+    pub fn connectivity_threshold(&self) -> Option<f64> {
+        self.connectivity_threshold
+    }
+
+    #[inline]
+    pub fn instruction_connection_threshold(&self) -> f64 {
+        self.instruction_connection_threshold
+    }
+
+    #[inline]
+    pub fn density_ratio_enabled(&self) -> bool {
+        self.density_ratio_enabled
+    }
+
+    #[inline]
+    pub fn instruction_neglect_enabled(&self) -> bool {
+        self.instruction_neglect_enabled
+    }
+
+    #[inline]
+    pub fn single_token_tripwire_enabled(&self) -> bool {
+        self.single_token_tripwire_enabled
+    }
+
     /// Computes a polynomial-time spectral bisection heuristic approximation of the network topology
     /// via the Fiedler vector to determine containment policy.
     ///
     /// Allocates an internal `PrunerWorkspace`. For hot streaming loops, use
-    /// [`prune_with_workspace`](Self::prune_with_workspace) to achieve zero heap allocations.
+    /// [`prune_with_workspace`](Self::prune_with_workspace) to reuse numeric and CSR buffers.
     pub fn prune(
         &self,
         topology: &Topology,
@@ -225,7 +336,7 @@ impl TauSpectralPruner {
     }
 
     /// Computes a polynomial-time spectral bisection heuristic approximation using a pre-allocated
-    /// scratchpad workspace, achieving zero heap allocations across repeated evaluations.
+    /// scratchpad workspace. The eigensolver and CSR buffers are reused, while partition outputs allocate.
     #[allow(clippy::needless_range_loop)]
     pub fn prune_with_workspace(
         &self,
@@ -257,6 +368,31 @@ impl TauSpectralPruner {
                 self.threat_threshold
             )));
         }
+        if matches!(
+            self.connectivity_threshold,
+            Some(threshold) if !threshold.is_finite() || threshold < 0.0
+        ) {
+            return Err(PrunerError::MathError(
+                "connectivity_threshold must be a non-negative finite value".to_string(),
+            ));
+        }
+        if !self.instruction_connection_threshold.is_finite()
+            || self.instruction_connection_threshold < 0.0
+        {
+            return Err(PrunerError::MathError(format!(
+                "instruction_connection_threshold must be non-negative and finite, got {}",
+                self.instruction_connection_threshold
+            )));
+        }
+
+        for &(u, v, weight) in &topology.weighted_edges {
+            if !weight.is_finite() || weight <= 0.0 {
+                return Err(PrunerError::MathError(format!(
+                    "Weighted edge ({}, {}) must have a positive finite weight, got {}",
+                    u, v, weight
+                )));
+            }
+        }
 
         let n = topology.num_nodes;
 
@@ -269,6 +405,18 @@ impl TauSpectralPruner {
             system_boundary_len > 0 && i >= self.system_start_idx && i <= system_boundary_len
         };
 
+        // Protected boundary anchors are always active. If a caller also marks
+        // one as a sink, the protected-system invariant takes precedence.
+        for i in 0..n {
+            if is_system_node(i) {
+                workspace.sink_bits.remove(i);
+            }
+        }
+
+        let boundary_configuration_valid = system_boundary_len == 0
+            || (self.system_start_idx <= system_boundary_len && self.system_start_idx < n);
+        let system_node_count = (0..n).filter(|&i| is_system_node(i)).count();
+
         // Edge-case 1: Small graphs with fewer than 3 nodes cannot be meaningfully partitioned
         if n < 3 {
             let mainland: Vec<usize> = (0..n)
@@ -279,15 +427,21 @@ impl TauSpectralPruner {
                 mainland_nodes: mainland,
                 island_nodes: Vec::new(),
                 connectivity_score: 0.0,
+                diagnostics: PrunerDiagnostics {
+                    boundary_configuration_valid,
+                    system_node_count,
+                    ..PrunerDiagnostics::default()
+                },
             });
         }
 
-        // 1. Zero-Allocation CSR compilation into workspace
-        CsrGraph::compile_into(
+        // 1. Allocation-reusing CSR compilation into workspace
+        WeightedCsrGraph::compile_into(
             topology,
             &workspace.sink_bits,
             &mut workspace.csr_row_ptrs,
             &mut workspace.csr_col_indices,
+            &mut workspace.csr_weights,
             &mut workspace.degrees,
             &mut workspace.cursor,
         );
@@ -303,6 +457,11 @@ impl TauSpectralPruner {
                 mainland_nodes: mainland,
                 island_nodes: Vec::new(),
                 connectivity_score: 0.0,
+                diagnostics: PrunerDiagnostics {
+                    boundary_configuration_valid,
+                    system_node_count,
+                    ..PrunerDiagnostics::default()
+                },
             });
         }
 
@@ -363,8 +522,9 @@ impl TauSpectralPruner {
                 let start = workspace.csr_row_ptrs[i];
                 let end = workspace.csr_row_ptrs[i + 1];
                 let mut neighbor_sum = 0.0;
-                for &neighbor in &workspace.csr_col_indices[start..end] {
-                    neighbor_sum += workspace.v_vec[neighbor];
+                for edge_idx in start..end {
+                    let neighbor = workspace.csr_col_indices[edge_idx];
+                    neighbor_sum += workspace.csr_weights[edge_idx] * workspace.v_vec[neighbor];
                 }
                 workspace.v_m[i] = (1.0 - alpha * workspace.degrees[i]) * workspace.v_vec[i]
                     + alpha * neighbor_sum;
@@ -409,8 +569,9 @@ impl TauSpectralPruner {
                 let start = workspace.csr_row_ptrs[i];
                 let end = workspace.csr_row_ptrs[i + 1];
                 let mut neighbor_sum = 0.0;
-                for &neighbor in &workspace.csr_col_indices[start..end] {
-                    neighbor_sum += workspace.v_next[neighbor];
+                for edge_idx in start..end {
+                    let neighbor = workspace.csr_col_indices[edge_idx];
+                    neighbor_sum += workspace.csr_weights[edge_idx] * workspace.v_next[neighbor];
                 }
                 let row_sum = workspace.degrees[i] * workspace.v_next[i] - neighbor_sum;
                 v_l_v += workspace.v_next[i] * row_sum;
@@ -455,37 +616,43 @@ impl TauSpectralPruner {
         }
 
         // 4. Advanced Semantic Threat Metric Analysis Pipeline
-        let mut to_system = 0.0;
-        let mut internal = 0.0;
+        let mut system_weight = 0.0;
+        let mut internal_weight = 0.0;
+        let mut partition_cut_weight = 0.0;
 
-        for &(u, v) in &topology.edges {
+        let mut score_edge = |u: usize, v: usize, weight: f64| {
             if u >= n
                 || v >= n
                 || u == v
                 || workspace.sink_bits.contains(u)
                 || workspace.sink_bits.contains(v)
             {
-                continue;
+                return;
             }
             let u_in_island = workspace.island_bits.contains(u);
             let v_in_island = workspace.island_bits.contains(v);
             let u_is_system = is_system_node(u);
             let v_is_system = is_system_node(v);
+            let u_in_local_island = u_in_island && !u_is_system;
+            let v_in_local_island = v_in_island && !v_is_system;
 
-            if u_in_island {
-                if v_is_system {
-                    to_system += 1.0;
-                } else if v_in_island && !u_is_system {
-                    internal += 1.0;
-                }
+            if u_in_local_island != v_in_local_island {
+                partition_cut_weight += weight;
             }
-            if v_in_island {
-                if u_is_system {
-                    to_system += 1.0;
-                } else if u_in_island && !v_is_system {
-                    internal += 1.0;
-                }
+
+            if (u_in_local_island && v_is_system) || (v_in_local_island && u_is_system) {
+                system_weight += weight;
+            } else if u_in_local_island && v_in_local_island {
+                // Each submitted undirected edge is counted exactly once.
+                internal_weight += weight;
             }
+        };
+
+        for &(u, v) in &topology.edges {
+            score_edge(u, v, 1.0);
+        }
+        for &(u, v, weight) in &topology.weighted_edges {
+            score_edge(u, v, weight);
         }
 
         let island_local_nodes: Vec<usize> = island
@@ -494,12 +661,43 @@ impl TauSpectralPruner {
             .filter(|&i| !is_system_node(i))
             .collect();
         let island_len = island_local_nodes.len() as f64;
-        let system_len = system_boundary_len as f64;
+        let system_len = system_node_count as f64;
+        let island_volume: f64 = island_local_nodes
+            .iter()
+            .map(|&node| workspace.degrees[node])
+            .sum();
+        let total_volume: f64 = workspace.degrees.iter().sum();
+        let complement_volume = (total_volume - island_volume).max(0.0);
+        let smaller_volume = island_volume.min(complement_volume);
+        let conductance = if smaller_volume > 0.0 {
+            partition_cut_weight / smaller_volume
+        } else {
+            0.0
+        };
 
-        // Metric 1: Scale-Invariant Cluster Density Ratio
-        let normalized_ratio = if to_system > 0.0 && island_len > 0.0 {
-            (internal * system_len) / (to_system * island_len)
-        } else if !island_local_nodes.is_empty() {
+        // Metric 1: ratio of possible-edge-normalized island density to
+        // island-to-system boundary density. This is dimensionless and remains
+        // stable when equivalent graph densities are reproduced at new scales.
+        let internal_density = if island_len > 1.0 {
+            (2.0 * internal_weight) / (island_len * (island_len - 1.0))
+        } else {
+            0.0
+        };
+        let boundary_density = if island_len > 0.0 && system_len > 0.0 {
+            system_weight / (island_len * system_len)
+        } else {
+            0.0
+        };
+        let possible_edge_density_ratio = if boundary_density > 0.0 {
+            internal_density / boundary_density
+        } else if internal_density > 0.0 {
+            f64::INFINITY
+        } else {
+            0.0
+        };
+        let normalized_ratio = if system_weight > 0.0 && island_len > 0.0 {
+            (internal_weight * system_len) / (system_weight * island_len)
+        } else if internal_weight > 0.0 {
             f64::INFINITY
         } else {
             0.0
@@ -507,21 +705,39 @@ impl TauSpectralPruner {
 
         // Metric 2: Instruction neglect checking
         let instruction_neglect = if !island_local_nodes.is_empty() {
-            to_system / island_len
+            system_weight / island_len
         } else {
             1.0
         };
 
         // Metric 3: Micro-Steering Single-Token Tripwire
-        let is_control_vector =
-            island_len == 1.0 && internal == 0.0 && to_system > 0.0 && to_system < 2.0;
+        let is_control_vector = island_len == 1.0
+            && internal_weight == 0.0
+            && system_weight > 0.0
+            && system_weight < 2.0;
+
+        let density_triggered = self.density_ratio_enabled
+            && normalized_ratio > 0.0
+            && normalized_ratio >= self.threat_threshold;
+        let instruction_neglect_triggered = self.instruction_neglect_enabled
+            && instruction_neglect < self.instruction_connection_threshold;
+        let single_token_triggered = self.single_token_tripwire_enabled && is_control_vector;
+        let connectivity_triggered = matches!(
+            self.connectivity_threshold,
+            Some(threshold) if fiedler_value <= threshold
+        );
 
         // 5. Policy Enforcement Decision Processing
         let action = if island_local_nodes.is_empty() || system_boundary_len == 0 {
             PolicyAction::Allow
-        } else if normalized_ratio > self.threat_threshold
-            || instruction_neglect < 0.1
-            || is_control_vector
+        } else if !boundary_configuration_valid {
+            // A configured boundary that maps to no valid interval is a policy
+            // misconfiguration. Fail closed rather than silently allowing it.
+            PolicyAction::FatalBlock
+        } else if connectivity_triggered
+            || density_triggered
+            || instruction_neglect_triggered
+            || single_token_triggered
         {
             PolicyAction::FatalBlock
         } else {
@@ -541,6 +757,25 @@ impl TauSpectralPruner {
             mainland_nodes: final_mainland,
             island_nodes: final_island,
             connectivity_score: fiedler_value,
+            diagnostics: PrunerDiagnostics {
+                boundary_configuration_valid,
+                island_node_count: island_local_nodes.len(),
+                system_node_count,
+                internal_weight,
+                system_weight,
+                partition_cut_weight,
+                island_volume,
+                conductance,
+                internal_density,
+                boundary_density,
+                possible_edge_density_ratio,
+                density_ratio: normalized_ratio,
+                instruction_connection: instruction_neglect,
+                connectivity_triggered,
+                density_triggered,
+                instruction_neglect_triggered,
+                single_token_triggered,
+            },
         })
     }
 }
@@ -554,6 +789,11 @@ pub struct PrunerBuilder {
     tolerance: f64,
     momentum_beta: f64,
     system_start_idx: usize,
+    connectivity_threshold: Option<f64>,
+    instruction_connection_threshold: f64,
+    density_ratio_enabled: bool,
+    instruction_neglect_enabled: bool,
+    single_token_tripwire_enabled: bool,
 }
 
 impl Default for PrunerBuilder {
@@ -565,6 +805,11 @@ impl Default for PrunerBuilder {
             tolerance: 1e-9,
             momentum_beta: 0.5,
             system_start_idx: 5,
+            connectivity_threshold: None,
+            instruction_connection_threshold: 0.1,
+            density_ratio_enabled: true,
+            instruction_neglect_enabled: true,
+            single_token_tripwire_enabled: true,
         }
     }
 }
@@ -600,6 +845,45 @@ impl PrunerBuilder {
         self
     }
 
+    /// Enables a calibrated algebraic-connectivity policy trigger.
+    pub fn connectivity_threshold(mut self, value: f64) -> Self {
+        self.connectivity_threshold = Some(value);
+        self
+    }
+
+    /// Configures the instruction-connection level below which neglect fires.
+    pub fn instruction_connection_threshold(mut self, value: f64) -> Self {
+        self.instruction_connection_threshold = value;
+        self
+    }
+
+    /// Enables or disables the normalized density-ratio policy trigger.
+    pub fn density_ratio_enabled(mut self, value: bool) -> Self {
+        self.density_ratio_enabled = value;
+        self
+    }
+
+    /// Enables or disables the low instruction-connection policy trigger.
+    pub fn instruction_neglect_enabled(mut self, value: bool) -> Self {
+        self.instruction_neglect_enabled = value;
+        self
+    }
+
+    /// Enables or disables the single-token policy trigger.
+    pub fn single_token_tripwire_enabled(mut self, value: bool) -> Self {
+        self.single_token_tripwire_enabled = value;
+        self
+    }
+
+    /// Disables all security heuristics while retaining the spectral partition.
+    /// This is intended for reproducible baseline and ablation experiments.
+    pub fn spectral_only(mut self) -> Self {
+        self.density_ratio_enabled = false;
+        self.instruction_neglect_enabled = false;
+        self.single_token_tripwire_enabled = false;
+        self
+    }
+
     /// Validates builder parameters and builds `TauSpectralPruner`.
     pub fn try_build(self) -> Result<TauSpectralPruner> {
         if self.tolerance <= 0.0 || self.tolerance.is_nan() {
@@ -625,6 +909,22 @@ impl PrunerBuilder {
                 self.threat_threshold
             )));
         }
+        if matches!(
+            self.connectivity_threshold,
+            Some(threshold) if !threshold.is_finite() || threshold < 0.0
+        ) {
+            return Err(PrunerError::MathError(
+                "connectivity_threshold must be a non-negative finite value".to_string(),
+            ));
+        }
+        if !self.instruction_connection_threshold.is_finite()
+            || self.instruction_connection_threshold < 0.0
+        {
+            return Err(PrunerError::MathError(format!(
+                "instruction_connection_threshold must be non-negative and finite, got {}",
+                self.instruction_connection_threshold
+            )));
+        }
 
         Ok(TauSpectralPruner {
             tau: self.tau,
@@ -633,6 +933,11 @@ impl PrunerBuilder {
             tolerance: self.tolerance,
             momentum_beta: self.momentum_beta,
             system_start_idx: self.system_start_idx,
+            connectivity_threshold: self.connectivity_threshold,
+            instruction_connection_threshold: self.instruction_connection_threshold,
+            density_ratio_enabled: self.density_ratio_enabled,
+            instruction_neglect_enabled: self.instruction_neglect_enabled,
+            single_token_tripwire_enabled: self.single_token_tripwire_enabled,
         })
     }
 

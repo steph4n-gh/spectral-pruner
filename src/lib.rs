@@ -1,13 +1,20 @@
+//! Deterministic, zero-dependency weighted spectral graph auditing.
+//!
+//! The crate provides injected-τ Fiedler partitioning, protected-boundary
+//! diagnostics, weighted conductance and density measures, configurable policy
+//! triggers, and reusable numeric/CSR workspace buffers.
+
 pub mod engine;
 pub mod error;
 pub mod graph;
 
 // Re-export core items for library clean top-level paths
 pub use engine::{
-    PolicyAction, PrunerBuilder, PrunerResolution, PrunerWorkspace, TauSpectralPruner, Topology,
+    PolicyAction, PrunerBuilder, PrunerDiagnostics, PrunerResolution, PrunerWorkspace,
+    TauSpectralPruner, Topology,
 };
 pub use error::{PrunerError, Result};
-pub use graph::{BitSet, CsrGraph};
+pub use graph::{BitSet, CsrGraph, WeightedCsrGraph};
 
 #[cfg(test)]
 mod tests {
