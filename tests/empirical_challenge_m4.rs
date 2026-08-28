@@ -7,9 +7,7 @@
 //! 4. Mathematical invariants from AGENTS.md (Arrington clamping, tau split, density ratio, neglect, tripwire)
 //! 5. Degenerate and adversarial topologies (sinks, loops, multi-components, out-of-bounds)
 
-use spectral_pruner::{
-    PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology,
-};
+use spectral_pruner::{PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology};
 
 /// Deterministic 64-bit Linear Congruential Generator
 struct Lcg {
@@ -260,12 +258,36 @@ fn challenge_scale_invariant_density_ratio_scaling() {
 
 #[test]
 fn challenge_error_validation_and_safety() {
-    assert!(TauSpectralPruner::builder().tolerance(0.0).try_build().is_err());
-    assert!(TauSpectralPruner::builder().tolerance(-1e-5).try_build().is_err());
-    assert!(TauSpectralPruner::builder().tolerance(f64::NAN).try_build().is_err());
-    assert!(TauSpectralPruner::builder().max_iterations(0).try_build().is_err());
-    assert!(TauSpectralPruner::builder().momentum_beta(-0.1).try_build().is_err());
-    assert!(TauSpectralPruner::builder().momentum_beta(1.0).try_build().is_err());
-    assert!(TauSpectralPruner::builder().momentum_beta(1.5).try_build().is_err());
-    assert!(TauSpectralPruner::builder().threat_threshold(-1.0).try_build().is_err());
+    assert!(TauSpectralPruner::builder()
+        .tolerance(0.0)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .tolerance(-1e-5)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .tolerance(f64::NAN)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .max_iterations(0)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .momentum_beta(-0.1)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .momentum_beta(1.0)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .momentum_beta(1.5)
+        .try_build()
+        .is_err());
+    assert!(TauSpectralPruner::builder()
+        .threat_threshold(-1.0)
+        .try_build()
+        .is_err());
 }

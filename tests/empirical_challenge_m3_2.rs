@@ -224,14 +224,14 @@ fn test_partition_conservation_1000_randomized_graphs() {
         // Generate diverse topological structure
         let topology_category = iter % 8;
         let num_nodes: usize = match topology_category {
-            0 => rng.gen_range(0, 3),   // Edge-case fast paths: N = 0, 1, 2
-            1 => rng.gen_range(3, 10),  // Small graphs
-            2 => rng.gen_range(10, 40), // Medium graphs
-            3 => rng.gen_range(40, 120),// Larger graphs
-            4 => rng.gen_range(5, 30),  // Star / hub graphs
-            5 => rng.gen_range(4, 25),  // Dense clique clusters
-            6 => rng.gen_range(6, 40),  // Disconnected components
-            _ => rng.gen_range(5, 50),  // Adversarial sparse/sink graphs
+            0 => rng.gen_range(0, 3),    // Edge-case fast paths: N = 0, 1, 2
+            1 => rng.gen_range(3, 10),   // Small graphs
+            2 => rng.gen_range(10, 40),  // Medium graphs
+            3 => rng.gen_range(40, 120), // Larger graphs
+            4 => rng.gen_range(5, 30),   // Star / hub graphs
+            5 => rng.gen_range(4, 25),   // Dense clique clusters
+            6 => rng.gen_range(6, 40),   // Disconnected components
+            _ => rng.gen_range(5, 50),   // Adversarial sparse/sink graphs
         };
 
         let mut topo = Topology::new(num_nodes);
@@ -336,7 +336,10 @@ fn test_partition_conservation_1000_randomized_graphs() {
         let res_direct = pruner
             .prune(&topo, system_boundary_len)
             .unwrap_or_else(|err| {
-                panic!("Iteration {}: pruner.prune failed with error: {:?}", iter, err)
+                panic!(
+                    "Iteration {}: pruner.prune failed with error: {:?}",
+                    iter, err
+                )
             });
 
         // 2. Workspace prune evaluation

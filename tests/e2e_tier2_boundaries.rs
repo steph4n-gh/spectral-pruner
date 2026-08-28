@@ -138,9 +138,7 @@ mod extreme_degrees {
 
     #[test]
     fn test_boundary_massive_star_graph_n1000() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(200)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(200).build();
         let mut topo = Topology::new(1000);
 
         // Hub at 0, 999 leaves at 1..1000
@@ -186,9 +184,7 @@ mod dense_cliques {
 
     #[test]
     fn test_boundary_dense_clique_k100() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(100)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(100).build();
         let n = 100;
         let mut topo = Topology::new(n);
         for i in 0..n {
@@ -205,9 +201,7 @@ mod dense_cliques {
 
     #[test]
     fn test_boundary_dense_clique_k200() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(50)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(50).build();
         let n = 200;
         let mut topo = Topology::new(n);
         for i in 0..n {
@@ -223,9 +217,7 @@ mod dense_cliques {
 
     #[test]
     fn test_boundary_dense_clique_k300() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(30)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(30).build();
         let n = 300;
         let mut topo = Topology::new(n);
         for i in 0..n {
@@ -248,9 +240,7 @@ mod paths_and_cycles {
 
     #[test]
     fn test_boundary_long_path_graph_n200() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(200)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(200).build();
         let n = 200;
         let mut topo = Topology::new(n);
         for i in 0..n - 1 {
@@ -265,9 +255,7 @@ mod paths_and_cycles {
 
     #[test]
     fn test_boundary_large_cycle_graph_n200() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(200)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(200).build();
         let n = 200;
         let mut topo = Topology::new(n);
         for i in 0..n {
@@ -349,9 +337,7 @@ mod system_boundary_extremes {
 
     #[test]
     fn test_boundary_system_start_idx_zero() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(0)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(0).build();
         let mut topo = Topology::new(10);
         for i in 0..9 {
             topo.add_edge(i, i + 1);
@@ -369,9 +355,7 @@ mod system_boundary_extremes {
 
     #[test]
     fn test_boundary_system_boundary_len_equals_n() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(0)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(0).build();
         let mut topo = Topology::new(8);
         for i in 0..7 {
             topo.add_edge(i, i + 1);
@@ -386,9 +370,7 @@ mod system_boundary_extremes {
 
     #[test]
     fn test_boundary_system_boundary_len_greater_than_n() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(2)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(2).build();
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -403,9 +385,7 @@ mod system_boundary_extremes {
 
     #[test]
     fn test_boundary_inverted_system_start_greater_than_len() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(10)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(10).build();
         let mut topo = Topology::new(8);
         for i in 0..7 {
             topo.add_edge(i, i + 1);

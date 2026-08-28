@@ -6,9 +6,7 @@
 //!
 //! Zero external test dependencies: pure Rust stdlib.
 
-use spectral_pruner::{
-    PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology,
-};
+use spectral_pruner::{PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology};
 use std::sync::Arc;
 use std::thread;
 
@@ -34,9 +32,7 @@ impl ComboLcg {
 #[test]
 fn test_combo_workspace_streaming_varying_sink_and_system_masks() {
     let mut rng = ComboLcg::new(0xC0FFEE123456);
-    let pruner = TauSpectralPruner::builder()
-        .max_iterations(100)
-        .build();
+    let pruner = TauSpectralPruner::builder().max_iterations(100).build();
     let mut ws = PrunerWorkspace::with_capacity(50, 100);
 
     for _ in 0..500 {
@@ -61,7 +57,9 @@ fn test_combo_workspace_streaming_varying_sink_and_system_masks() {
         let sys_start = rng.next_usize(n);
         let sys_len = sys_start + rng.next_usize(n - sys_start + 5);
 
-        let res_ws = pruner.prune_with_workspace(&topo, sys_len, &mut ws).unwrap();
+        let res_ws = pruner
+            .prune_with_workspace(&topo, sys_len, &mut ws)
+            .unwrap();
         let res_direct = pruner.prune(&topo, sys_len).unwrap();
 
         assert_eq!(res_ws, res_direct);
@@ -149,9 +147,7 @@ fn test_combo_density_ratio_under_momentum_and_tolerance_variations() {
 
 #[test]
 fn test_combo_dense_backdoor_with_sink_severed_bridge() {
-    let pruner = TauSpectralPruner::builder()
-        .system_start_idx(10)
-        .build();
+    let pruner = TauSpectralPruner::builder().system_start_idx(10).build();
 
     let mut topo = Topology::new(12);
     // Mainland: 0..4 connected to system node 10
@@ -205,9 +201,7 @@ fn test_combo_sliding_system_window_on_barbell() {
     // Slide system window across the graph: [0..2], [3..5], [6..8]
     for start in [0, 3, 6] {
         let end = start + 2;
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(start)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(start).build();
 
         let res = pruner.prune(&topo, end).unwrap();
         // Verify system nodes are stripped
@@ -256,4 +250,3 @@ fn test_combo_multi_tenant_workspace_isolation() {
         handle.join().unwrap();
     }
 }
-

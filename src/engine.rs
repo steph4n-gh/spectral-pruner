@@ -220,8 +220,7 @@ impl TauSpectralPruner {
         topology: &Topology,
         system_boundary_len: usize,
     ) -> Result<PrunerResolution> {
-        let mut workspace =
-            PrunerWorkspace::with_capacity(topology.num_nodes, topology.edges.len());
+        let mut workspace = PrunerWorkspace::new();
         self.prune_with_workspace(topology, system_boundary_len, &mut workspace)
     }
 
@@ -460,7 +459,12 @@ impl TauSpectralPruner {
         let mut internal = 0.0;
 
         for &(u, v) in &topology.edges {
-            if u >= n || v >= n || u == v || workspace.sink_bits.contains(u) || workspace.sink_bits.contains(v) {
+            if u >= n
+                || v >= n
+                || u == v
+                || workspace.sink_bits.contains(u)
+                || workspace.sink_bits.contains(v)
+            {
                 continue;
             }
             let u_in_island = workspace.island_bits.contains(u);
@@ -530,10 +534,7 @@ impl TauSpectralPruner {
             .into_iter()
             .filter(|&i| !is_system_node(i))
             .collect();
-        let final_island: Vec<usize> = island
-            .into_iter()
-            .filter(|&i| !is_system_node(i))
-            .collect();
+        let final_island: Vec<usize> = island.into_iter().filter(|&i| !is_system_node(i)).collect();
 
         Ok(PrunerResolution {
             action,
@@ -808,22 +809,52 @@ mod tests {
     #[test]
     fn test_pruner_builder_try_build_validation_errors() {
         // Tolerance <= 0.0 or NaN
-        assert!(TauSpectralPruner::builder().tolerance(0.0).try_build().is_err());
-        assert!(TauSpectralPruner::builder().tolerance(-1.0).try_build().is_err());
-        assert!(TauSpectralPruner::builder().tolerance(f64::NAN).try_build().is_err());
+        assert!(TauSpectralPruner::builder()
+            .tolerance(0.0)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .tolerance(-1.0)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .tolerance(f64::NAN)
+            .try_build()
+            .is_err());
 
         // Max iterations == 0
-        assert!(TauSpectralPruner::builder().max_iterations(0).try_build().is_err());
+        assert!(TauSpectralPruner::builder()
+            .max_iterations(0)
+            .try_build()
+            .is_err());
 
         // Momentum beta < 0.0 or >= 1.0 or NaN
-        assert!(TauSpectralPruner::builder().momentum_beta(-0.1).try_build().is_err());
-        assert!(TauSpectralPruner::builder().momentum_beta(1.0).try_build().is_err());
-        assert!(TauSpectralPruner::builder().momentum_beta(1.5).try_build().is_err());
-        assert!(TauSpectralPruner::builder().momentum_beta(f64::NAN).try_build().is_err());
+        assert!(TauSpectralPruner::builder()
+            .momentum_beta(-0.1)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .momentum_beta(1.0)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .momentum_beta(1.5)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .momentum_beta(f64::NAN)
+            .try_build()
+            .is_err());
 
         // Threat threshold < 0.0 or NaN
-        assert!(TauSpectralPruner::builder().threat_threshold(-0.01).try_build().is_err());
-        assert!(TauSpectralPruner::builder().threat_threshold(f64::NAN).try_build().is_err());
+        assert!(TauSpectralPruner::builder()
+            .threat_threshold(-0.01)
+            .try_build()
+            .is_err());
+        assert!(TauSpectralPruner::builder()
+            .threat_threshold(f64::NAN)
+            .try_build()
+            .is_err());
     }
 
     #[test]

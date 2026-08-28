@@ -381,7 +381,7 @@ mod feature_05_arrington_clamping {
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_sink(2); // Sink node
-        // Node 3 is isolated, Node 4 is isolated
+                          // Node 3 is isolated, Node 4 is isolated
 
         let res = pruner.prune(&topo, 0).unwrap();
         assert!(!res.mainland_nodes.contains(&2));
@@ -392,9 +392,7 @@ mod feature_05_arrington_clamping {
 
     #[test]
     fn test_f05_isolated_nodes_with_system_boundary() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(3)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(3).build();
         let mut topo = Topology::new(6);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -448,9 +446,7 @@ mod feature_06_shifted_laplacian_spmv {
 
     #[test]
     fn test_f06_spmv_csr_slice_multiplication() {
-        let pruner = TauSpectralPruner::builder()
-            .max_iterations(1)
-            .build();
+        let pruner = TauSpectralPruner::builder().max_iterations(1).build();
         let mut topo = Topology::new(4);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -527,7 +523,10 @@ mod feature_07_null_space_projection {
         let _res = pruner.prune_with_workspace(&topo, 0, &mut ws).unwrap();
 
         let active_sum: f64 = (0..5).map(|i| ws.v_vec[i]).sum();
-        assert!(active_sum.abs() < 1e-9, "Mean after projection must be ~0.0");
+        assert!(
+            active_sum.abs() < 1e-9,
+            "Mean after projection must be ~0.0"
+        );
     }
 
     #[test]
@@ -929,9 +928,7 @@ mod feature_12_scale_invariant_density_ratio {
 
     #[test]
     fn test_f12_sparse_island_low_threat() {
-        let pruner = TauSpectralPruner::builder()
-            .threat_threshold(100.0)
-            .build();
+        let pruner = TauSpectralPruner::builder().threat_threshold(100.0).build();
         let mut topo = Topology::new(8);
         for i in 0..4 {
             topo.add_edge(i, i + 1);
@@ -968,9 +965,7 @@ mod feature_12_scale_invariant_density_ratio {
 
     #[test]
     fn test_f12_zero_to_system_infinite_ratio() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(5)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(5).build();
         let mut topo = Topology::new(8);
         // Mainland connected to system
         topo.add_edge(0, 1);
@@ -1001,9 +996,7 @@ mod feature_13_instruction_neglect {
 
     #[test]
     fn test_f13_zero_system_edges_neglect() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(5)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(5).build();
         let mut topo = Topology::new(7);
         topo.add_edge(0, 1);
         topo.add_edge(1, 5); // Mainland to system
@@ -1015,9 +1008,7 @@ mod feature_13_instruction_neglect {
 
     #[test]
     fn test_f13_sub_threshold_connection_neglect() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(20)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(20).build();
         let mut topo = Topology::new(22);
         // Mainland connected to system
         for i in 0..5 {
@@ -1071,9 +1062,7 @@ mod feature_13_instruction_neglect {
 
     #[test]
     fn test_f13_multi_node_cluster_neglect() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(8)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(8).build();
         let mut topo = Topology::new(10);
         topo.add_edge(0, 8);
         topo.add_edge(1, 8);
@@ -1226,9 +1215,7 @@ mod feature_15_policy_verdict_mapping {
 
     #[test]
     fn test_f15_fatal_block_on_high_density() {
-        let pruner = TauSpectralPruner::builder()
-            .threat_threshold(1.0)
-            .build();
+        let pruner = TauSpectralPruner::builder().threat_threshold(1.0).build();
         let mut topo = Topology::new(7);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -1261,9 +1248,7 @@ mod feature_16_telemetry_separation {
 
     #[test]
     fn test_f16_system_nodes_excluded_from_mainland_and_island() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(3)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(3).build();
         let mut topo = Topology::new(6);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -1281,9 +1266,7 @@ mod feature_16_telemetry_separation {
 
     #[test]
     fn test_f16_system_nodes_participate_in_eigensolver() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(2)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(2).build();
         let mut topo = Topology::new(4);
         topo.add_edge(0, 2);
         topo.add_edge(1, 3);
@@ -1294,9 +1277,7 @@ mod feature_16_telemetry_separation {
 
     #[test]
     fn test_f16_custom_system_start_idx() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(1)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(1).build();
         assert_eq!(pruner.system_start_idx(), 1);
 
         let mut topo = Topology::new(5);
@@ -1311,9 +1292,7 @@ mod feature_16_telemetry_separation {
 
     #[test]
     fn test_f16_inverted_system_range_no_stripping() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(10)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(10).build();
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -1325,9 +1304,7 @@ mod feature_16_telemetry_separation {
 
     #[test]
     fn test_f16_telemetry_separation_with_sinks() {
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(2)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(2).build();
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_sink(2); // Sink inside system range
@@ -1358,29 +1335,62 @@ mod feature_17_config_validation {
     #[test]
     fn test_f17_invalid_tolerance_errors() {
         assert!(PrunerBuilder::default().tolerance(0.0).try_build().is_err());
-        assert!(PrunerBuilder::default().tolerance(-1e-5).try_build().is_err());
-        assert!(PrunerBuilder::default().tolerance(f64::NAN).try_build().is_err());
+        assert!(PrunerBuilder::default()
+            .tolerance(-1e-5)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .tolerance(f64::NAN)
+            .try_build()
+            .is_err());
     }
 
     #[test]
     fn test_f17_invalid_max_iterations_error() {
-        assert!(PrunerBuilder::default().max_iterations(0).try_build().is_err());
-        assert!(PrunerBuilder::default().max_iterations(1).try_build().is_ok());
+        assert!(PrunerBuilder::default()
+            .max_iterations(0)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .max_iterations(1)
+            .try_build()
+            .is_ok());
     }
 
     #[test]
     fn test_f17_invalid_momentum_beta_errors() {
-        assert!(PrunerBuilder::default().momentum_beta(-0.1).try_build().is_err());
-        assert!(PrunerBuilder::default().momentum_beta(1.0).try_build().is_err());
-        assert!(PrunerBuilder::default().momentum_beta(1.5).try_build().is_err());
-        assert!(PrunerBuilder::default().momentum_beta(f64::NAN).try_build().is_err());
+        assert!(PrunerBuilder::default()
+            .momentum_beta(-0.1)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .momentum_beta(1.0)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .momentum_beta(1.5)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .momentum_beta(f64::NAN)
+            .try_build()
+            .is_err());
     }
 
     #[test]
     fn test_f17_invalid_threat_threshold_errors() {
-        assert!(PrunerBuilder::default().threat_threshold(-0.1).try_build().is_err());
-        assert!(PrunerBuilder::default().threat_threshold(f64::NAN).try_build().is_err());
-        assert!(PrunerBuilder::default().threat_threshold(0.0).try_build().is_ok());
+        assert!(PrunerBuilder::default()
+            .threat_threshold(-0.1)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .threat_threshold(f64::NAN)
+            .try_build()
+            .is_err());
+        assert!(PrunerBuilder::default()
+            .threat_threshold(0.0)
+            .try_build()
+            .is_ok());
     }
 }
 
@@ -1392,7 +1402,10 @@ mod feature_18_invariant_baseline {
 
     #[test]
     fn test_f18_baseline_nominal_flow() {
-        let pruner = TauSpectralPruner::builder().tau(0.0).threat_threshold(2.0).build();
+        let pruner = TauSpectralPruner::builder()
+            .tau(0.0)
+            .threat_threshold(2.0)
+            .build();
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_edge(1, 2);
@@ -1430,7 +1443,10 @@ mod feature_18_invariant_baseline {
 
     #[test]
     fn test_f18_baseline_custom_system_boundary() {
-        let pruner = TauSpectralPruner::builder().tau(0.0).system_start_idx(2).build();
+        let pruner = TauSpectralPruner::builder()
+            .tau(0.0)
+            .system_start_idx(2)
+            .build();
         let mut topo = Topology::new(5);
         topo.add_edge(0, 1);
         topo.add_edge(4, 2);

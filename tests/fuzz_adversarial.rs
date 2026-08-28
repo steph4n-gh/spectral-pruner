@@ -12,9 +12,7 @@
 //! 6. Zero-Allocation Workspace Parity: prune() == prune_with_workspace()
 //! 7. Zero Panic Guarantee: No unexpected unwrap failures or index out of bounds
 
-use spectral_pruner::{
-    BitSet, CsrGraph, PrunerWorkspace, TauSpectralPruner, Topology,
-};
+use spectral_pruner::{BitSet, CsrGraph, PrunerWorkspace, TauSpectralPruner, Topology};
 
 /// Pure-Rust deterministic 64-bit Linear Congruential Generator (LCG)
 struct AdversarialLcg {
@@ -175,11 +173,7 @@ fn test_fuzz_10000_adversarial_topologies_and_invariant_conservation() {
         // 2. Parity with prune() on sampled iterations
         if iter % 200 == 0 {
             let res_direct = pruner.prune(&topo, sys_len).unwrap();
-            assert_eq!(
-                res, res_direct,
-                "Workspace parity failure on iter {}",
-                iter
-            );
+            assert_eq!(res, res_direct, "Workspace parity failure on iter {}", iter);
         }
 
         // 3. Algebraic connectivity bound

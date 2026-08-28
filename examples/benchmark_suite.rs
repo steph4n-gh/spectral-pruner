@@ -151,7 +151,10 @@ fn main() {
     );
 
     // Warm-up phase
-    print!("{}Warming up CPU caches and frequency governors...{}", WHITE, RESET);
+    print!(
+        "{}Warming up CPU caches and frequency governors...{}",
+        WHITE, RESET
+    );
     let warmup_topo = Topology::new(10);
     let _ = profile_topology(&warmup_topo, 0, 200);
     println!(" {}[OK]{}\n", GREEN, RESET);
@@ -218,7 +221,10 @@ fn main() {
     }
 
     // 5. Continuous Streaming Workspace Stress Benchmark (10,000 Iterations)
-    println!("\n{}{}[+] 5. HIGH-FREQUENCY STREAMING WORKSPACE CONTINUOUS RUN (10,000 Iterations){}", BOLD, YELLOW, RESET);
+    println!(
+        "\n{}{}[+] 5. HIGH-FREQUENCY STREAMING WORKSPACE CONTINUOUS RUN (10,000 Iterations){}",
+        BOLD, YELLOW, RESET
+    );
     let pruner = TauSpectralPruner::builder()
         .max_iterations(100)
         .tolerance(1e-5)
@@ -265,7 +271,9 @@ fn main() {
     // Systems Guarantees Summary
     println!("\n{}{}", BOLD, CYAN);
     println!("==========================================================================================");
-    println!("                         🛡️ ZERO-DEPENDENCY SYSTEMS ATTESTATION 🛡️                       ");
+    println!(
+        "                         🛡️ ZERO-DEPENDENCY SYSTEMS ATTESTATION 🛡️                       "
+    );
     println!("==========================================================================================");
     println!("{}", RESET);
     println!(

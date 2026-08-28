@@ -20,9 +20,7 @@ mod llm_attention_guard {
     #[test]
     fn test_app_llm_single_token_steering_jailbreak_blocked() {
         // System prompt token located at system space [6..6]
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(6)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(6).build();
 
         let mut topo = Topology::new(7);
 
@@ -46,9 +44,7 @@ mod llm_attention_guard {
     #[test]
     fn test_app_llm_dense_subversive_jailbreak_cluster_blocked() {
         // System prompt in [12..15]
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(12)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(12).build();
 
         let mut topo = Topology::new(20);
 
@@ -220,9 +216,7 @@ mod ics_ot_segmentation_audit {
     #[test]
     fn test_app_ics_ot_air_gapped_controller_compromise_blocked() {
         // SCADA Master & Safety Instrumented System at system indices [12..15]
-        let pruner = TauSpectralPruner::builder()
-            .system_start_idx(12)
-            .build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(12).build();
 
         let mut topo = Topology::new(20);
 

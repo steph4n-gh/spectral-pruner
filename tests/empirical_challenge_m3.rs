@@ -11,9 +11,7 @@
 //! 4. Randomized property-based fuzzing harnesses verifying telemetry separation, partition conservation,
 //!    and workspace determinism across thousands of adversarial graphs.
 
-use spectral_pruner::engine::{
-    PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology,
-};
+use spectral_pruner::engine::{PolicyAction, PrunerWorkspace, TauSpectralPruner, Topology};
 use spectral_pruner::error::PrunerError;
 use std::collections::BTreeSet;
 
@@ -64,7 +62,7 @@ fn test_boundary_zero_system_boundary_len_allows_all() {
     let pruner = TauSpectralPruner::builder()
         .tau(0.0)
         .threat_threshold(0.01) // Extremely sensitive threshold
-        .system_start_idx(0)    // Even if system_start_idx == 0
+        .system_start_idx(0) // Even if system_start_idx == 0
         .build();
 
     // Adversarial graph: disconnected island that would otherwise be FatalBlock
@@ -596,13 +594,14 @@ fn test_validation_tolerance_bounds() {
     assert!(matches!(err_neg, Err(PrunerError::MathError(_))));
 
     // NaN tolerance
-    let err_nan = TauSpectralPruner::builder()
-        .tolerance(f64::NAN)
-        .try_build();
+    let err_nan = TauSpectralPruner::builder().tolerance(f64::NAN).try_build();
     assert!(matches!(err_nan, Err(PrunerError::MathError(_))));
 
     // Positive tolerance must succeed
-    assert!(TauSpectralPruner::builder().tolerance(1e-12).try_build().is_ok());
+    assert!(TauSpectralPruner::builder()
+        .tolerance(1e-12)
+        .try_build()
+        .is_ok());
 }
 
 #[test]
@@ -612,14 +611,22 @@ fn test_validation_max_iterations_bounds() {
     assert!(matches!(err_zero, Err(PrunerError::MathError(_))));
 
     // Non-zero max iterations must succeed
-    assert!(TauSpectralPruner::builder().max_iterations(1).try_build().is_ok());
-    assert!(TauSpectralPruner::builder().max_iterations(100_000).try_build().is_ok());
+    assert!(TauSpectralPruner::builder()
+        .max_iterations(1)
+        .try_build()
+        .is_ok());
+    assert!(TauSpectralPruner::builder()
+        .max_iterations(100_000)
+        .try_build()
+        .is_ok());
 }
 
 #[test]
 fn test_validation_momentum_beta_bounds() {
     // Negative beta
-    let err_neg = TauSpectralPruner::builder().momentum_beta(-0.01).try_build();
+    let err_neg = TauSpectralPruner::builder()
+        .momentum_beta(-0.01)
+        .try_build();
     assert!(matches!(err_neg, Err(PrunerError::MathError(_))));
 
     // Beta == 1.0 (boundary exclusion: must be in [0.0, 1.0))
@@ -637,8 +644,14 @@ fn test_validation_momentum_beta_bounds() {
     assert!(matches!(err_nan, Err(PrunerError::MathError(_))));
 
     // Valid beta boundaries [0.0, 1.0)
-    assert!(TauSpectralPruner::builder().momentum_beta(0.0).try_build().is_ok());
-    assert!(TauSpectralPruner::builder().momentum_beta(0.9999).try_build().is_ok());
+    assert!(TauSpectralPruner::builder()
+        .momentum_beta(0.0)
+        .try_build()
+        .is_ok());
+    assert!(TauSpectralPruner::builder()
+        .momentum_beta(0.9999)
+        .try_build()
+        .is_ok());
 }
 
 #[test]
@@ -656,30 +669,44 @@ fn test_validation_threat_threshold_bounds() {
     assert!(matches!(err_nan, Err(PrunerError::MathError(_))));
 
     // Non-negative threat threshold must succeed
-    assert!(TauSpectralPruner::builder().threat_threshold(0.0).try_build().is_ok());
-    assert!(TauSpectralPruner::builder().threat_threshold(1000.0).try_build().is_ok());
+    assert!(TauSpectralPruner::builder()
+        .threat_threshold(0.0)
+        .try_build()
+        .is_ok());
+    assert!(TauSpectralPruner::builder()
+        .threat_threshold(1000.0)
+        .try_build()
+        .is_ok());
 }
 
 #[test]
-#[should_panic(expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: Tolerance must be strictly positive")]
+#[should_panic(
+    expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: Tolerance must be strictly positive"
+)]
 fn test_validation_build_panic_on_negative_tolerance() {
     let _ = TauSpectralPruner::builder().tolerance(-1.0).build();
 }
 
 #[test]
-#[should_panic(expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: max_iterations must be greater than 0")]
+#[should_panic(
+    expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: max_iterations must be greater than 0"
+)]
 fn test_validation_build_panic_on_zero_max_iterations() {
     let _ = TauSpectralPruner::builder().max_iterations(0).build();
 }
 
 #[test]
-#[should_panic(expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: Momentum beta must be in [0.0, 1.0)")]
+#[should_panic(
+    expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: Momentum beta must be in [0.0, 1.0)"
+)]
 fn test_validation_build_panic_on_invalid_momentum_beta() {
     let _ = TauSpectralPruner::builder().momentum_beta(1.0).build();
 }
 
 #[test]
-#[should_panic(expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: threat_threshold must be non-negative")]
+#[should_panic(
+    expected = "Invalid PrunerBuilder configuration: Mathematical solver failure: threat_threshold must be non-negative"
+)]
 fn test_validation_build_panic_on_negative_threat_threshold() {
     let _ = TauSpectralPruner::builder().threat_threshold(-1.0).build();
 }
@@ -777,9 +804,7 @@ fn test_property_2_partition_conservation_and_sink_isolation_fuzz_1000() {
         let sys_start = rng.gen_range(0, n + 5);
         let sys_len = rng.gen_range(0, n + 5);
 
-        let is_sys = |i: usize| -> bool {
-            sys_len > 0 && i >= sys_start && i <= sys_len
-        };
+        let is_sys = |i: usize| -> bool { sys_len > 0 && i >= sys_start && i <= sys_len };
 
         let pruner = TauSpectralPruner::builder()
             .tau(rng.gen_f64() * 2.0 - 1.0)
