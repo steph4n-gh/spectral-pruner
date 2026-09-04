@@ -20,6 +20,8 @@
 - Validate evaluation resume settings and saved row identities; refuse to score
   unconverged graphs. Older evaluation manifests require a fresh output directory.
 - Fix current-stable Clippy's slice-clearing warning and include both license texts.
+- Replace hardware-dependent debug timing assertions with repeated analytical
+  connectivity checks; keep latency measurements in the release benchmarks.
 
 See [MIGRATION.md](MIGRATION.md) for the changes from the published 1.0.0 API.
 
