@@ -178,6 +178,15 @@ pub struct PrunerResolution {
 #[derive(Debug, Clone, PartialEq)]
 pub struct PrunerDiagnostics {
     pub boundary_configuration_valid: bool,
+    /// Whether the iteration and eigenpair residual met the requested tolerance.
+    /// This is a convergence check, not a proof that the eigenpair is the Fiedler pair.
+    pub solver_converged: bool,
+    pub solver_iterations: usize,
+    /// `||L v - lambda v||_2 / max_degree` for the unit eigenvector; unavailable
+    /// when the legacy small-graph path does not compute an eigenpair.
+    pub relative_residual: Option<f64>,
+    /// A configured connectivity policy could not use a converged estimate.
+    pub numerical_failure_triggered: bool,
     pub island_node_count: usize,
     pub system_node_count: usize,
     pub internal_weight: f64,
@@ -206,6 +215,10 @@ impl Default for PrunerDiagnostics {
     fn default() -> Self {
         Self {
             boundary_configuration_valid: true,
+            solver_converged: false,
+            solver_iterations: 0,
+            relative_residual: None,
+            numerical_failure_triggered: false,
             island_node_count: 0,
             system_node_count: 0,
             internal_weight: 0.0,
@@ -344,47 +357,7 @@ impl TauSpectralPruner {
         system_boundary_len: usize,
         workspace: &mut PrunerWorkspace,
     ) -> Result<PrunerResolution> {
-        // Upfront engine configuration validation
-        if self.tolerance <= 0.0 || self.tolerance.is_nan() {
-            return Err(PrunerError::MathError(format!(
-                "Tolerance must be strictly positive (> 0.0), got {}",
-                self.tolerance
-            )));
-        }
-        if self.max_iterations == 0 {
-            return Err(PrunerError::MathError(
-                "max_iterations must be greater than 0".to_string(),
-            ));
-        }
-        if self.momentum_beta < 0.0 || self.momentum_beta >= 1.0 || self.momentum_beta.is_nan() {
-            return Err(PrunerError::MathError(format!(
-                "Momentum beta must be in [0.0, 1.0), got {}",
-                self.momentum_beta
-            )));
-        }
-        if self.threat_threshold < 0.0 || self.threat_threshold.is_nan() {
-            return Err(PrunerError::MathError(format!(
-                "threat_threshold must be non-negative (>= 0.0), got {}",
-                self.threat_threshold
-            )));
-        }
-        if matches!(
-            self.connectivity_threshold,
-            Some(threshold) if !threshold.is_finite() || threshold < 0.0
-        ) {
-            return Err(PrunerError::MathError(
-                "connectivity_threshold must be a non-negative finite value".to_string(),
-            ));
-        }
-        if !self.instruction_connection_threshold.is_finite()
-            || self.instruction_connection_threshold < 0.0
-        {
-            return Err(PrunerError::MathError(format!(
-                "instruction_connection_threshold must be non-negative and finite, got {}",
-                self.instruction_connection_threshold
-            )));
-        }
-
+        // Configuration is validated once by the builder; fields are private.
         for &(u, v, weight) in &topology.weighted_edges {
             if !weight.is_finite() || weight <= 0.0 {
                 return Err(PrunerError::MathError(format!(
@@ -417,25 +390,8 @@ impl TauSpectralPruner {
             || (self.system_start_idx <= system_boundary_len && self.system_start_idx < n);
         let system_node_count = (0..n).filter(|&i| is_system_node(i)).count();
 
-        // Edge-case 1: Small graphs with fewer than 3 nodes cannot be meaningfully partitioned
-        if n < 3 {
-            let mainland: Vec<usize> = (0..n)
-                .filter(|&i| !workspace.sink_bits.contains(i) && !is_system_node(i))
-                .collect();
-            return Ok(PrunerResolution {
-                action: PolicyAction::Allow,
-                mainland_nodes: mainland,
-                island_nodes: Vec::new(),
-                connectivity_score: 0.0,
-                diagnostics: PrunerDiagnostics {
-                    boundary_configuration_valid,
-                    system_node_count,
-                    ..PrunerDiagnostics::default()
-                },
-            });
-        }
-
-        // 1. Allocation-reusing CSR compilation into workspace
+        // Validate aggregate arithmetic even on the small-graph path. Finite
+        // individual edges can overflow a degree or the total graph volume.
         WeightedCsrGraph::compile_into(
             topology,
             &workspace.sink_bits,
@@ -445,28 +401,81 @@ impl TauSpectralPruner {
             &mut workspace.degrees,
             &mut workspace.cursor,
         );
-
-        // Edge-case 2: All disconnected / zero-degree active nodes
+        let total_volume: f64 = workspace.degrees.iter().sum();
+        if !total_volume.is_finite() {
+            return Err(PrunerError::MathError(
+                "Accumulated graph weight exceeds the finite numeric range".to_string(),
+            ));
+        }
         let max_degree = workspace.degrees.iter().copied().fold(0.0, f64::max);
-        if max_degree == 0.0 {
+
+        // Edge-case 1: Preserve the small-graph partition convention. A connected
+        // small graph has no computed eigenpair and cannot authorize a calibrated policy.
+        if n < 3 {
+            let solver_converged = max_degree == 0.0;
+            let numerical_failure_triggered =
+                self.connectivity_threshold.is_some() && !solver_converged;
             let mainland: Vec<usize> = (0..n)
                 .filter(|&i| !workspace.sink_bits.contains(i) && !is_system_node(i))
                 .collect();
             return Ok(PrunerResolution {
-                action: PolicyAction::Allow,
+                action: if !boundary_configuration_valid
+                    || (system_boundary_len > 0 && numerical_failure_triggered)
+                {
+                    PolicyAction::FatalBlock
+                } else {
+                    PolicyAction::Allow
+                },
                 mainland_nodes: mainland,
                 island_nodes: Vec::new(),
                 connectivity_score: 0.0,
                 diagnostics: PrunerDiagnostics {
                     boundary_configuration_valid,
+                    solver_converged,
+                    relative_residual: solver_converged.then_some(0.0),
+                    numerical_failure_triggered,
                     system_node_count,
                     ..PrunerDiagnostics::default()
                 },
             });
         }
 
-        // 2. Accelerated Shifted Laplacian Eigensolver Operator: M = I - alpha * L
-        let alpha = 1.0 / (2.0 * max_degree + 1.1);
+        // Edge-case 2: All disconnected / zero-degree active nodes
+        if max_degree == 0.0 {
+            let mainland: Vec<usize> = (0..n)
+                .filter(|&i| !workspace.sink_bits.contains(i) && !is_system_node(i))
+                .collect();
+            return Ok(PrunerResolution {
+                action: if boundary_configuration_valid {
+                    PolicyAction::Allow
+                } else {
+                    PolicyAction::FatalBlock
+                },
+                mainland_nodes: mainland,
+                island_nodes: Vec::new(),
+                connectivity_score: 0.0,
+                diagnostics: PrunerDiagnostics {
+                    boundary_configuration_valid,
+                    solver_converged: true,
+                    relative_residual: Some(0.0),
+                    system_node_count,
+                    ..PrunerDiagnostics::default()
+                },
+            });
+        }
+
+        // 2. Shifted operator M = I - (L / max_degree) / 2.
+        // Divide each weight before multiplying, so a uniform rescaling does
+        // not change convergence or overflow the shift's denominator.
+        if workspace
+            .csr_weights
+            .iter()
+            .any(|weight| weight / max_degree == 0.0)
+        {
+            return Err(PrunerError::MathError(
+                "Edge weight underflows the normalized operator".to_string(),
+            ));
+        }
 
         // Symmetry-breaking initialization with Arrington Clamping:
         // Isolated degree-0 nodes are clamped to 1.0; active connected nodes to sin(i)
@@ -492,8 +501,12 @@ impl TauSpectralPruner {
 
         workspace.v_prev_m.copy_from_slice(&workspace.v_vec);
         let mut fiedler_value = 0.0;
+        let mut solver_iterations = 0;
+        let mut solver_converged = false;
+        let mut relative_residual = None;
 
-        for _ in 0..self.max_iterations {
+        for iteration in 0..self.max_iterations {
+            solver_iterations = iteration + 1;
             // Null-space projection: orthogonalize against constant vector 1 across active non-sink nodes
             let mut sum = 0.0;
             let mut count = 0.0;
@@ -524,10 +537,12 @@ impl TauSpectralPruner {
                 let mut neighbor_sum = 0.0;
                 for edge_idx in start..end {
                     let neighbor = workspace.csr_col_indices[edge_idx];
-                    neighbor_sum += workspace.csr_weights[edge_idx] * workspace.v_vec[neighbor];
+                    neighbor_sum +=
+                        (workspace.csr_weights[edge_idx] / max_degree) * workspace.v_vec[neighbor];
                 }
-                workspace.v_m[i] = (1.0 - alpha * workspace.degrees[i]) * workspace.v_vec[i]
-                    + alpha * neighbor_sum;
+                workspace.v_m[i] = (1.0 - 0.5 * (workspace.degrees[i] / max_degree))
+                    * workspace.v_vec[i]
+                    + 0.5 * neighbor_sum;
             }
 
             // Heavy-Ball / Polyak Momentum Injection
@@ -542,6 +557,11 @@ impl TauSpectralPruner {
 
             let norm_sq: f64 = workspace.v_next.iter().map(|x| x * x).sum();
             let norm = norm_sq.sqrt();
+            if !norm.is_finite() {
+                return Err(PrunerError::MathError(
+                    "Non-finite eigenvector norm".to_string(),
+                ));
+            }
             if norm < 1e-15 {
                 break;
             }
@@ -560,7 +580,9 @@ impl TauSpectralPruner {
                 }
             }
 
-            // Continuous Rayleigh Quotient calculation: lambda_2 = v^T L v
+            // Edge-energy form of the Rayleigh quotient avoids subtracting
+            // nearly equal degree and adjacency terms. Reuse v_vec for L v
+            // after its previous contents have been used by max_diff.
             let mut v_l_v = 0.0;
             for i in 0..n {
                 if workspace.sink_bits.contains(i) {
@@ -568,21 +590,42 @@ impl TauSpectralPruner {
                 }
                 let start = workspace.csr_row_ptrs[i];
                 let end = workspace.csr_row_ptrs[i + 1];
-                let mut neighbor_sum = 0.0;
+                let mut row_sum = 0.0;
                 for edge_idx in start..end {
                     let neighbor = workspace.csr_col_indices[edge_idx];
-                    neighbor_sum += workspace.csr_weights[edge_idx] * workspace.v_next[neighbor];
+                    let difference = workspace.v_next[i] - workspace.v_next[neighbor];
+                    let weight = workspace.csr_weights[edge_idx] / max_degree;
+                    row_sum += weight * difference;
+                    v_l_v += 0.5 * weight * difference * difference;
                 }
-                let row_sum = workspace.degrees[i] * workspace.v_next[i] - neighbor_sum;
-                v_l_v += workspace.v_next[i] * row_sum;
+                workspace.v_vec[i] = row_sum;
             }
-            fiedler_value = v_l_v;
+            let residual = workspace
+                .v_vec
+                .iter()
+                .zip(&workspace.v_next)
+                .map(|(lv, v)| (lv - v_l_v * v).powi(2))
+                .sum::<f64>()
+                .sqrt();
+            fiedler_value = v_l_v * max_degree;
+            if v_l_v > 0.0 && fiedler_value == 0.0 {
+                return Err(PrunerError::MathError(
+                    "Connectivity score underflow".to_string(),
+                ));
+            }
+            if !fiedler_value.is_finite() || !residual.is_finite() {
+                return Err(PrunerError::MathError(
+                    "Non-finite eigenpair calculation".to_string(),
+                ));
+            }
+            relative_residual = Some(residual);
 
             // In-place copy to avoid vector recreation and heap allocation thrashing
             workspace.v_prev_m.copy_from_slice(&workspace.v_m);
             workspace.v_vec.copy_from_slice(&workspace.v_next);
 
-            if max_diff < self.tolerance {
+            if max_diff < self.tolerance && residual < self.tolerance {
+                solver_converged = true;
                 break;
             }
         }
@@ -666,7 +709,6 @@ impl TauSpectralPruner {
             .iter()
             .map(|&node| workspace.degrees[node])
             .sum();
-        let total_volume: f64 = workspace.degrees.iter().sum();
         let complement_volume = (total_volume - island_volume).max(0.0);
         let smaller_volume = island_volume.min(complement_volume);
         let conductance = if smaller_volume > 0.0 {
@@ -696,12 +738,33 @@ impl TauSpectralPruner {
             0.0
         };
         let normalized_ratio = if system_weight > 0.0 && island_len > 0.0 {
-            (internal_weight * system_len) / (system_weight * island_len)
+            // Algebraically identical signature ratio, with division before
+            // multiplication so an overflowing denominator cannot become zero.
+            (internal_weight / system_weight) * (system_len / island_len)
         } else if internal_weight > 0.0 {
             f64::INFINITY
         } else {
             0.0
         };
+
+        // Infinity is meaningful only for a positive internal weight with no
+        // system connection. Overflow with a positive denominator is an error.
+        if !internal_density.is_finite()
+            || !boundary_density.is_finite()
+            || !conductance.is_finite()
+            || (internal_weight > 0.0 && internal_density == 0.0)
+            || (system_weight > 0.0 && boundary_density == 0.0 && system_len > 0.0)
+            || (system_weight > 0.0
+                && (!normalized_ratio.is_finite() || !possible_edge_density_ratio.is_finite()))
+            || (internal_weight > 0.0
+                && system_weight > 0.0
+                && system_len > 0.0
+                && (normalized_ratio == 0.0 || possible_edge_density_ratio == 0.0))
+        {
+            return Err(PrunerError::MathError(
+                "Partition metric exceeds the supported numeric range".to_string(),
+            ));
+        }
 
         // Metric 2: Instruction neglect checking
         let instruction_neglect = if !island_local_nodes.is_empty() {
@@ -724,16 +787,22 @@ impl TauSpectralPruner {
         let single_token_triggered = self.single_token_tripwire_enabled && is_control_vector;
         let connectivity_triggered = matches!(
             self.connectivity_threshold,
-            Some(threshold) if fiedler_value <= threshold
+            Some(threshold) if solver_converged && fiedler_value <= threshold
         );
+        let numerical_failure_triggered =
+            self.connectivity_threshold.is_some() && !solver_converged;
 
         // 5. Policy Enforcement Decision Processing
-        let action = if island_local_nodes.is_empty() || system_boundary_len == 0 {
-            PolicyAction::Allow
-        } else if !boundary_configuration_valid {
+        let action = if !boundary_configuration_valid {
             // A configured boundary that maps to no valid interval is a policy
             // misconfiguration. Fail closed rather than silently allowing it.
             PolicyAction::FatalBlock
+        } else if system_boundary_len == 0 {
+            PolicyAction::Allow
+        } else if numerical_failure_triggered {
+            PolicyAction::FatalBlock
+        } else if island_local_nodes.is_empty() {
+            PolicyAction::Allow
         } else if connectivity_triggered
             || density_triggered
             || instruction_neglect_triggered
@@ -759,6 +828,10 @@ impl TauSpectralPruner {
             connectivity_score: fiedler_value,
             diagnostics: PrunerDiagnostics {
                 boundary_configuration_valid,
+                solver_converged,
+                solver_iterations,
+                relative_residual,
+                numerical_failure_triggered,
                 island_node_count: island_local_nodes.len(),
                 system_node_count,
                 internal_weight,
@@ -886,9 +959,12 @@ impl PrunerBuilder {
 
     /// Validates builder parameters and builds `TauSpectralPruner`.
     pub fn try_build(self) -> Result<TauSpectralPruner> {
-        if self.tolerance <= 0.0 || self.tolerance.is_nan() {
+        if !self.tau.is_finite() {
+            return Err(PrunerError::MathError("Tau must be finite".to_string()));
+        }
+        if self.tolerance <= 0.0 || !self.tolerance.is_finite() {
             return Err(PrunerError::MathError(format!(
-                "Tolerance must be strictly positive (> 0.0), got {}",
+                "Tolerance must be strictly positive (> 0.0) and finite, got {}",
                 self.tolerance
             )));
         }

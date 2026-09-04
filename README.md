@@ -111,6 +111,8 @@ endpoint disables system policy. A nonzero invalid interval fails closed.
 
 The full policy can trigger on:
 
+- invalid protected intervals, including on empty and small graphs;
+- an unconverged estimate when a connectivity threshold is configured;
 - calibrated `lambda_2 <= connectivity_threshold`, when configured;
 - `density_ratio >= threat_threshold`;
 - `instruction_connection < instruction_connection_threshold`;
@@ -118,6 +120,14 @@ The full policy can trigger on:
 
 Use `.spectral_only()` to disable the three non-spectral policy heuristics for a
 clean λ₂ baseline or calibrated connectivity-only deployment.
+
+Check `diagnostics.solver_converged`, `solver_iterations`, and `relative_residual`
+before interpreting an estimate. Long paths and weakly coupled graphs can need
+more iterations; the CLI exposes `--max-iterations` and `--tolerance`. A calibrated
+connectivity policy fails closed on non-convergence when system policy is enabled.
+The residual measures eigenpair accuracy, not proof of eigenvalue ordering.
+See [MIGRATION.md](MIGRATION.md) for the 2.0.0 release candidate's compatibility
+changes and the small-graph convention.
 
 ## Real LLM attention path
 
@@ -203,6 +213,7 @@ cargo test --all-targets
 cargo clippy --all-targets -- -D warnings
 cargo run --release --example benchmark_suite
 python3 research/numerical_oracle.py
+python3 -m unittest discover -s research -p 'test_*.py'
 ```
 
 ## Boundary and sink rules

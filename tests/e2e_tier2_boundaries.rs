@@ -20,7 +20,14 @@ mod minimal_graphs {
 
         for sys_len in [0, 1, 5, 100] {
             let res = pruner.prune(&topo, sys_len).unwrap();
-            assert_eq!(res.action, PolicyAction::Allow);
+            assert_eq!(
+                res.action,
+                if sys_len == 0 {
+                    PolicyAction::Allow
+                } else {
+                    PolicyAction::FatalBlock
+                }
+            );
             assert!(res.mainland_nodes.is_empty());
             assert!(res.island_nodes.is_empty());
             assert_eq!(res.connectivity_score, 0.0);

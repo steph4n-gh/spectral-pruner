@@ -5,14 +5,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import subprocess
 import sys
 from collections import defaultdict
 from hashlib import sha256
 from pathlib import Path
-
-from attention_graph import extract_attention_bundle, graph_metadata, load_model
 
 
 ABLATIONS = {
@@ -56,6 +55,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threat-threshold", type=float, default=2.0)
     parser.add_argument("--connectivity-threshold", type=float)
     parser.add_argument("--instruction-threshold", type=float, default=0.1)
+    parser.add_argument("--max-iterations", type=int, default=10_000)
+    parser.add_argument("--tolerance", type=float, default=1e-9)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument(
         "--resume",
@@ -136,6 +137,8 @@ def run_auditor(
     connectivity_threshold: float | None,
     instruction_threshold: float,
     extra_args: tuple[str, ...],
+    max_iterations: int = 10_000,
+    tolerance: float = 1e-9,
 ) -> dict:
     command = [
         str(auditor),
@@ -149,6 +152,10 @@ def run_auditor(
         str(threat_threshold),
         "--instruction-threshold",
         str(instruction_threshold),
+        "--max-iterations",
+        str(max_iterations),
+        "--tolerance",
+        str(tolerance),
         *extra_args,
         "-",
     ]
@@ -163,7 +170,54 @@ def run_auditor(
     )
     if completed.returncode != 0:
         raise RuntimeError(f"auditor failed: {completed.stderr.strip()}")
-    return json.loads(completed.stdout)
+    audit = json.loads(completed.stdout)
+    if not audit["diagnostics"].get("solver_converged", False):
+        raise RuntimeError("auditor did not converge; increase --max-iterations before evaluating")
+    score = audit["connectivity_score"]
+    if score is None or not math.isfinite(score):
+        raise RuntimeError("auditor returned a non-finite connectivity score")
+    return audit
+
+
+def run_identity(args, dataset_identity: dict, revision: str | None, device: str) -> dict:
+    """Include every input that can change selected examples, labels, or signals."""
+    return {
+        "schema_version": 2,
+        "dataset": dataset_identity,
+        "model": args.model,
+        "requested_revision": args.revision,
+        "model_revision": revision,
+        "device": device,
+        "auditor_sha256": sha256(args.auditor.read_bytes()).hexdigest(),
+        "research_sha256": {
+            name: sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
+            for name in ("evaluate.py", "attention_graph.py")
+        },
+        "system_sha256": sha256(args.system.encode("utf-8")).hexdigest(),
+        **{name: getattr(args, name) for name in (
+            "text_field", "label_field", "attack_label", "max_per_class", "seed",
+            "max_length", "layers", "top_k", "min_weight", "threat_threshold",
+            "connectivity_threshold", "instruction_threshold", "max_iterations", "tolerance",
+        )},
+    }
+
+
+def resume_rows(manifest_path: Path, result_path: Path, identity: dict, records: list[dict]) -> list[dict]:
+    if not manifest_path.is_file():
+        raise ValueError("cannot safely resume: run.json is missing")
+    if json.loads(manifest_path.read_text(encoding="utf-8")) != identity:
+        raise ValueError("cannot safely resume: run configuration has changed")
+    rows = [json.loads(line) for line in result_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    selected = {record["source_index"]: record for record in records}
+    seen = set()
+    for row in rows:
+        index = row["source_index"]
+        record = selected.get(index)
+        if (record is None or index in seen or row["label"] != record["label"]
+                or row["text_sha256"] != sha256(record["text"].encode("utf-8")).hexdigest()):
+            raise ValueError("cannot safely resume: saved predictions do not match selected records")
+        seen.add(index)
+    return rows
 
 
 def roc_auc(labels: list[int], scores: list[float]) -> float:
@@ -225,6 +279,9 @@ def trajectory_features(layer_audits: list[dict]) -> dict:
 
 
 def main() -> None:
+    # Pure evaluation/manifest helpers and their tests need no model runtime.
+    from attention_graph import extract_attention_bundle, graph_metadata, load_model
+
     args = parse_args()
     records, dataset_identity = load_records(args)
     if not args.auditor.is_file():
@@ -238,38 +295,13 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     result_path = args.output_dir / "predictions.jsonl"
     manifest_path = args.output_dir / "run.json"
-    run_identity = {
-        "schema_version": 1,
-        "dataset": dataset_identity,
-        "model": args.model,
-        "model_revision": revision,
-        "device": device,
-        "auditor_sha256": sha256(args.auditor.read_bytes()).hexdigest(),
-        "system_sha256": sha256(args.system.encode("utf-8")).hexdigest(),
-        "layers": args.layers,
-        "top_k": args.top_k,
-        "min_weight": args.min_weight,
-        "threat_threshold": args.threat_threshold,
-        "connectivity_threshold": args.connectivity_threshold,
-        "instruction_threshold": args.instruction_threshold,
-    }
+    identity = run_identity(args, dataset_identity, revision, device)
     if args.resume and result_path.is_file():
-        if not manifest_path.is_file():
-            raise ValueError("cannot safely resume: run.json is missing")
-        previous_identity = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if previous_identity != run_identity:
-            raise ValueError("cannot safely resume: run configuration has changed")
+        rows = resume_rows(manifest_path, result_path, identity, records)
     else:
         manifest_path.write_text(
-            json.dumps(run_identity, indent=2) + "\n", encoding="utf-8"
+            json.dumps(identity, indent=2) + "\n", encoding="utf-8"
         )
-    if args.resume and result_path.is_file():
-        rows = [
-            json.loads(line)
-            for line in result_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
-    else:
         result_path.write_text("", encoding="utf-8")
         rows = []
     completed_indices = {row["source_index"] for row in rows}
@@ -298,6 +330,8 @@ def main() -> None:
                 None if name == "without_connectivity" else args.connectivity_threshold,
                 args.instruction_threshold,
                 flags,
+                args.max_iterations,
+                args.tolerance,
             )
             for name, flags in ABLATIONS.items()
         }
@@ -311,6 +345,8 @@ def main() -> None:
                 None,
                 args.instruction_threshold,
                 ("--spectral-only",),
+                args.max_iterations,
+                args.tolerance,
             )
             for layer_graph in bundle.layers
         ]
@@ -319,6 +355,9 @@ def main() -> None:
             "label": record["label"],
             "text_sha256": sha256(record["text"].encode("utf-8")).hexdigest(),
             "graph": graph_metadata(graph, args.model, revision),
+            "solver": {key: diagnostics[key] for key in (
+                "solver_converged", "solver_iterations", "relative_residual",
+            )},
             "signals": {
                 "algebraic_connectivity": full["connectivity_score"],
                 "conductance": diagnostics["conductance"],

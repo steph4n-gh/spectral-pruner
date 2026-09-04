@@ -1,6 +1,6 @@
 [package]
 name = "spectral-pruner"
-version = "1.0.0"
+version = "2.0.0-rc.1"
 edition = "2021"
 authors = ["Stephan Arrington"]
 description = "A zero-dependency weighted spectral graph auditing kernel with deterministic Fiedler partitioning."

@@ -12,6 +12,8 @@ struct Cli {
     system_end: usize,
     sinks: Vec<usize>,
     tau: f64,
+    max_iterations: usize,
+    tolerance: f64,
     threat_threshold: f64,
     connectivity_threshold: Option<f64>,
     instruction_threshold: f64,
@@ -30,6 +32,8 @@ fn usage() -> &'static str {
      Options:\n\
        --sink N                 Mark a sink node; repeat as needed\n\
        --tau F                  Fiedler partition threshold (default: 0.0)\n\
+       --max-iterations N       Solver iteration budget (default: 10000)\n\
+       --tolerance F            Solver convergence tolerance (default: 1e-9)\n\
        --threat-threshold F     Density-ratio threshold (default: 2.0)\n\
        --connectivity-threshold F  Block at or below this lambda_2 (disabled by default)\n\
        --instruction-threshold F   Instruction-connection floor (default: 0.1)\n\
@@ -53,6 +57,8 @@ fn parse_cli() -> Result<Cli, String> {
     let mut system_end = None;
     let mut sinks = Vec::new();
     let mut tau = 0.0;
+    let mut max_iterations = 10_000;
+    let mut tolerance = 1e-9;
     let mut threat_threshold = 2.0;
     let mut connectivity_threshold = None;
     let mut instruction_threshold = 0.1;
@@ -68,6 +74,8 @@ fn parse_cli() -> Result<Cli, String> {
             "--system-end" => system_end = Some(parse_value("--system-end", args.next())?),
             "--sink" => sinks.push(parse_value("--sink", args.next())?),
             "--tau" => tau = parse_value("--tau", args.next())?,
+            "--max-iterations" => max_iterations = parse_value("--max-iterations", args.next())?,
+            "--tolerance" => tolerance = parse_value("--tolerance", args.next())?,
             "--threat-threshold" => {
                 threat_threshold = parse_value("--threat-threshold", args.next())?
             }
@@ -110,6 +118,8 @@ fn parse_cli() -> Result<Cli, String> {
         system_end: system_end.ok_or_else(|| "missing --system-end".to_string())?,
         sinks,
         tau,
+        max_iterations,
+        tolerance,
         threat_threshold,
         connectivity_threshold,
         instruction_threshold,
@@ -180,7 +190,7 @@ fn load_topology(cli: &Cli) -> Result<Topology, String> {
 
 fn json_float(value: f64) -> String {
     if value.is_finite() {
-        format!("{:.17}", value)
+        value.to_string()
     } else {
         "null".to_string()
     }
@@ -213,6 +223,8 @@ fn diagnostics_json(d: &PrunerDiagnostics) -> String {
     format!(
         concat!(
             "{{\"boundary_configuration_valid\":{},",
+            "\"solver_converged\":{},\"solver_iterations\":{},",
+            "\"relative_residual\":{},\"numerical_failure_triggered\":{},",
             "\"island_node_count\":{},\"system_node_count\":{},",
             "\"internal_weight\":{},\"system_weight\":{},",
             "\"partition_cut_weight\":{},\"island_volume\":{},\"conductance\":{},",
@@ -225,6 +237,12 @@ fn diagnostics_json(d: &PrunerDiagnostics) -> String {
             "\"instruction_neglect_triggered\":{},\"single_token_triggered\":{}}}"
         ),
         d.boundary_configuration_valid,
+        d.solver_converged,
+        d.solver_iterations,
+        d.relative_residual
+            .map(json_float)
+            .unwrap_or_else(|| "null".to_string()),
+        d.numerical_failure_triggered,
         d.island_node_count,
         d.system_node_count,
         json_float(d.internal_weight),
@@ -251,6 +269,8 @@ fn run() -> Result<(), String> {
     let topology = load_topology(&cli)?;
     let mut builder = TauSpectralPruner::builder()
         .tau(cli.tau)
+        .max_iterations(cli.max_iterations)
+        .tolerance(cli.tolerance)
         .threat_threshold(cli.threat_threshold)
         .system_start_idx(cli.system_start)
         .instruction_connection_threshold(cli.instruction_threshold)
