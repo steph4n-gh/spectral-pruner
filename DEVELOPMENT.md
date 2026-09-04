@@ -98,6 +98,7 @@ cargo clippy --all-targets -- -D warnings
 cargo test --all-targets
 cargo build --release --bin spectral-pruner-audit
 python3 -m py_compile research/*.py
+python3 -m unittest discover -s research -p 'test_*.py' -v
 python3 research/numerical_oracle.py
 ```
 

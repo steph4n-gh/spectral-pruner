@@ -74,9 +74,7 @@ impl BitSet {
     /// Resets all bits to 0 without deallocating the underlying vector buffer.
     #[inline]
     pub fn clear(&mut self) {
-        for word in &mut self.words {
-            *word = 0;
-        }
+        self.words.fill(0);
     }
 
     /// Resizes the bitset to track `new_len` bits, clearing all words.

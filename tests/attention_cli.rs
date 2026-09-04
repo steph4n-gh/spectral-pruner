@@ -28,7 +28,7 @@ fn weighted_edge_cli_emits_versioned_machine_readable_output() {
     assert!(stdout.trim_end().ends_with('}'));
     assert!(stdout.contains("\"schema_version\":1"));
     assert!(stdout.contains("\"action\":\"FATAL_BLOCK\""));
-    assert!(stdout.contains("\"density_ratio\":1.00000000000000000"));
+    assert!(stdout.contains("\"density_ratio\":1,"));
     assert!(stdout.contains("\"density_triggered\":true"));
 }
 

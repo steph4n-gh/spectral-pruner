@@ -283,7 +283,16 @@ fn test_boundary_small_graphs_exhaustive_boundaries() {
 
             for sys_len in 0..10 {
                 let res = pruner.prune(&topo, sys_len).unwrap();
-                assert_eq!(res.action, PolicyAction::Allow);
+                let valid = sys_len == 0
+                    || (pruner.system_start_idx() <= sys_len && pruner.system_start_idx() < n);
+                assert_eq!(
+                    res.action,
+                    if valid {
+                        PolicyAction::Allow
+                    } else {
+                        PolicyAction::FatalBlock
+                    }
+                );
                 assert_eq!(res.connectivity_score, 0.0);
 
                 // All returned nodes must be valid and non-system

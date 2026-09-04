@@ -51,8 +51,18 @@ cargo build --release --bin spectral-pruner-audit
 python3 research/numerical_oracle.py
 ```
 
-The oracle creates deterministic connected weighted graphs and checks every
-Rust algebraic-connectivity result against NumPy's symmetric eigensolver.
+The oracle compares small connected weighted graphs with NumPy's symmetric
+eigensolver, and adds known-spectrum paths, uniform weight scales, weak bridges,
+disconnected graphs, and isolated nodes. The long-path cases verify that the
+default iteration budget reports non-convergence and an extended budget agrees
+with the analytical value. A reported residual checks an eigenpair, not its rank
+in the spectrum.
+
+Offline evaluator and CLI regression checks run without PyTorch or model downloads:
+
+```sh
+python3 -m unittest discover -s research -p 'test_*.py' -v
+```
 
 Measure the Rust core on an extracted graph (this excludes model inference and
 Python extraction time):
@@ -90,6 +100,11 @@ against a trivial length baseline and single-snapshot artifacts.
 Use `--resume` to continue an interrupted evaluation from its existing
 `predictions.jsonl`. Resume validates `run.json` so a different model, dataset,
 system prompt, graph transform, or policy cannot be mixed into one result.
+Sampling, label interpretation, iteration limits, research source hashes, and
+saved row identities are checked as well. Old manifests require a fresh output
+directory. Unconverged graphs abort evaluation; increase `--max-iterations` and
+start a fresh run instead of scoring an unreliable estimate. Both aggregate and
+layer audits use the same iteration budget and tolerance.
 Over-length prompts fail explicitly and are never silently truncated.
 
 Fit operating thresholds only on a calibration split, then apply them to an

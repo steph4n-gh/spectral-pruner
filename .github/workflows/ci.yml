@@ -7,6 +7,7 @@ on:
       - 'feature/**'
       - 'feat/**'
       - 'fix/**'
+      - 'codex/**'
   pull_request:
     branches:
       - main
@@ -48,3 +49,22 @@ jobs:
 
       - name: Run Test Suite
         run: cargo test --all-targets --verbose
+
+      - name: Build audit CLI
+        run: cargo build --release --bin spectral-pruner-audit
+
+      - name: Install research test runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install numerical oracle dependency
+        run: python -m pip install numpy==2.2.6
+
+      - name: Verify research harness and CLI contract
+        run: |
+          python -m py_compile research/*.py
+          python -m unittest discover -s research -p 'test_*.py' -v
+
+      - name: Verify numerical oracle and convergence reporting
+        run: python research/numerical_oracle.py

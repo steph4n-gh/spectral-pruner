@@ -438,10 +438,10 @@ mod feature_06_shifted_laplacian_spmv {
         let sink_bits = BitSet::new(4);
         let csr = CsrGraph::from_topology(&topo, &sink_bits);
         let max_d = csr.max_degree();
-        let expected_alpha = 1.0 / (2.0 * max_d + 1.1);
+        let expected_alpha = 0.5 / max_d;
 
         assert_eq!(max_d, 3.0);
-        assert!((expected_alpha - (1.0 / 7.1)).abs() < 1e-12);
+        assert!((expected_alpha - (1.0 / 6.0)).abs() < 1e-12);
     }
 
     #[test]
@@ -979,7 +979,7 @@ mod feature_12_scale_invariant_density_ratio {
 
     #[test]
     fn test_f12_empty_island_zero_ratio() {
-        let pruner = TauSpectralPruner::builder().build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(1).build();
         let mut topo = Topology::new(2);
         topo.add_edge(0, 1);
 
@@ -1189,7 +1189,7 @@ mod feature_15_policy_verdict_mapping {
 
     #[test]
     fn test_f15_allow_on_empty_island() {
-        let pruner = TauSpectralPruner::builder().build();
+        let pruner = TauSpectralPruner::builder().system_start_idx(1).build();
         let mut topo = Topology::new(2);
         topo.add_edge(0, 1);
 

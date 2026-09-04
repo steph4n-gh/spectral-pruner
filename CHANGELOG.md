@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 2.0.0-rc.1 — release candidate
+
+### Stabilization
+
+- Reject non-finite tau and tolerance at construction. Reject accumulated
+  weight overflow and invalid numerical results before emitting a verdict.
+- Fail closed for invalid protected intervals on every resolution path,
+  including small graphs, edgeless graphs, and empty islands.
+- Scale the shifted operator by maximum degree so uniformly tiny weights do
+  not prematurely stop iteration; compute the Rayleigh quotient using edge energy.
+- Expose convergence, iteration count, normalized eigenpair residual, and the
+  numerical-failure policy trigger. Configured connectivity policies fail closed
+  on an unconverged estimate when system policy is enabled.
+- Add CLI iteration/tolerance controls and preserve tiny finite values in JSON.
+- Add deterministic numerical stress cases and offline research/CLI tests to CI.
+- Validate evaluation resume settings and saved row identities; refuse to score
+  unconverged graphs. Older evaluation manifests require a fresh output directory.
+- Fix current-stable Clippy's slice-clearing warning and include both license texts.
+
+See [MIGRATION.md](MIGRATION.md) for the changes from the published 1.0.0 API.
+
 ### Added
 
 - Positive finite weighted edges and weighted CSR processing.
@@ -23,8 +44,7 @@
 
 ### Compatibility
 
-This work adds public fields to `Topology` and `PrunerResolution`; callers that
-construct either type with a struct literal will need to update. Constructor and
-builder-based callers remain source-compatible. A semantic-version decision is
-required before release.
-
+This release adds public fields to `Topology`, `PrunerResolution`, and
+`PrunerDiagnostics`; callers using struct literals must update. The published
+1.0.0 API therefore requires a major version change. Version 2.0.0-rc.1 is a
+reviewable prerelease, not a stable release or a production LLM-defense claim.
