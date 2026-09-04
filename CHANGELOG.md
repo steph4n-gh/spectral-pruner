@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add paired exact-answer LLM behavioral evaluation, prefill-only spectral and
+  attention/length signals, frozen calibration, counterfactual withholding,
+  explicit task failures/inconclusive outcomes, and offline experiment tests.
+  Include a synthetic smoke fixture and prioritize measurable LLM utility in the
+  roadmap. This is research tooling, not a validated prompt-injection defense.
 - Add a tested quick start, full CLI reference, mathematical contract, contributor
   guide, release checklist, and an actionable roadmap. Clarify source-candidate
   installation, verdict handling, and the historical scope of attention results.

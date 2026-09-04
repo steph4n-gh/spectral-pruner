@@ -139,9 +139,10 @@ this release candidate. It reports both positive direct-injection results and
 weak indirect-injection results. It does not establish a production defense
 against prompt injection; those experiments need rerunning after solver changes.
 
-The next useful milestone is a reproducible audit of a real exported graph with
-human-reviewed findings. The [roadmap](ROADMAP.md) defines that work and the
-separate evidence needed for stronger LLM claims.
+The next milestone is measurable LLM utility: identify successful task hijacks
+while preserving legitimate answers. The [paired behavioral harness](research/BEHAVIORAL_EVALUATION.md)
+measures actual responses and counterfactual withholding with frozen thresholds.
+The [roadmap](ROADMAP.md) defines the evidence needed before building a live integration.
 
 ## Develop and verify
 
