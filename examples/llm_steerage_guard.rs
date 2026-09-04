@@ -1,4 +1,7 @@
-// examples/llm_steerage_guard.rs
+//! Synthetic, role-coded visualization only.
+//!
+//! This example does not extract model attention and must not be used as
+//! detection evidence. See `research/extract_attention.py` for the real path.
 #![allow(clippy::needless_range_loop, clippy::collapsible_if)]
 
 use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology};
@@ -140,10 +143,10 @@ impl AttentionGraphAuditor {
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
     println!("==========================================================================");
-    println!("   ⚡ [τ-Gate] LLM ATTENTION-DENSITY JAILBREAK & STEERAGE AUDITOR ⚡");
+    println!("   ⚡ [τ-Gate] SYNTHETIC ATTENTION-GRAPH VISUALIZATION ⚡");
     println!("==========================================================================");
-    println!("Analyzing attention affinity patterns within decoder self-attention layers");
-    println!("to dynamically isolate adversarial jailbreaks and malicious prompts.\n");
+    println!("Pedagogical data generated from explicit semantic role labels.");
+    println!("This is not a real model-attention evaluation.\n");
 
     let mut auditor = AttentionGraphAuditor::new();
 
@@ -192,7 +195,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
 
     // 2. Generate Simulated Transformer Self-Attention Matrix
     let attention_matrix = auditor.generate_attention_matrix();
-    println!("[+] Attention density vector extracted from self-attention layers.\n");
+    println!("[+] Synthetic role-coded attention matrix generated.\n");
 
     // 3. Render Heatmap Visualization
     auditor.render_heatmap(&attention_matrix);
@@ -229,7 +232,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
 
     // 7. Render Telemetry & Containment Decision
     println!("\n==========================================================================");
-    println!("                  🚨 LLM INFERENCE ATTENTION AUDIT REPORT 🚨              ");
+    println!("                  SYNTHETIC TOPOLOGY AUDIT REPORT                         ");
     println!("==========================================================================");
     println!("Guardrail Action Verdict  : {}", resolution.action);
     println!(
@@ -261,14 +264,14 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     // 8. Enforce Safety Guardrail Policy
     match resolution.action {
         PolicyAction::FatalBlock => {
-            println!("\n[GUARDRAIL TRIGGERED] 🚫 ADVERSARIAL STEERING OR JAILBREAK DETECTED!");
+            println!("\n[SYNTHETIC POLICY TRIGGERED] Role-coded attack scenario isolated.");
             println!("The bisection isolated a highly dense, unaligned attention cluster");
             println!(
                 "quarantined at token indices {:?}.",
                 resolution.island_nodes
             );
             println!("This cluster exhibits direct safety-override attempts bypassing context.");
-            println!("Blocking inference generation to protect model integrity.");
+            println!("No real inference was executed or blocked by this example.");
             std::process::exit(1);
         }
         PolicyAction::GarbageCollect => {

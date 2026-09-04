@@ -1,9 +1,20 @@
+//! Deterministic, zero-dependency weighted spectral graph auditing.
+//!
+//! The crate provides injected-τ Fiedler partitioning, protected-boundary
+//! diagnostics, weighted conductance and density measures, configurable policy
+//! triggers, and reusable numeric/CSR workspace buffers.
+
 pub mod engine;
 pub mod error;
+pub mod graph;
 
 // Re-export core items for library clean top-level paths
-pub use engine::{PolicyAction, PrunerBuilder, PrunerResolution, TauSpectralPruner, Topology};
+pub use engine::{
+    PolicyAction, PrunerBuilder, PrunerDiagnostics, PrunerResolution, PrunerWorkspace,
+    TauSpectralPruner, Topology,
+};
 pub use error::{PrunerError, Result};
+pub use graph::{BitSet, CsrGraph, WeightedCsrGraph};
 
 #[cfg(test)]
 mod tests {
@@ -140,5 +151,33 @@ mod tests {
         assert_eq!(res.island_nodes.len() + res.mainland_nodes.len(), 6);
         assert!(!res.island_nodes.is_empty());
         assert!(!res.mainland_nodes.is_empty());
+    }
+
+    #[test]
+    fn test_prune_with_workspace_streaming_and_equivalence() {
+        let pruner = TauSpectralPruner::builder().tau(0.0).build();
+        let mut ws = PrunerWorkspace::with_capacity(10, 20);
+
+        // Test multiple topologies through the same workspace instance
+        let mut topo1 = Topology::new(6);
+        topo1.add_edge(0, 1);
+        topo1.add_edge(1, 2);
+        topo1.add_edge(2, 0);
+        topo1.add_edge(3, 5);
+
+        let res1_ws = pruner.prune_with_workspace(&topo1, 5, &mut ws).unwrap();
+        let res1_direct = pruner.prune(&topo1, 5).unwrap();
+        assert_eq!(res1_ws, res1_direct);
+        assert_eq!(res1_ws.action, PolicyAction::FatalBlock);
+        assert_eq!(res1_ws.island_nodes, vec![3]);
+
+        let mut topo2 = Topology::new(4);
+        topo2.add_edge(0, 1);
+        topo2.add_edge(1, 2);
+        topo2.add_edge(2, 3);
+        let res2_ws = pruner.prune_with_workspace(&topo2, 0, &mut ws).unwrap();
+        let res2_direct = pruner.prune(&topo2, 0).unwrap();
+        assert_eq!(res2_ws, res2_direct);
+        assert_eq!(res2_ws.action, PolicyAction::Allow);
     }
 }
