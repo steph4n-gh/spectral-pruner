@@ -12,6 +12,8 @@ struct Args {
     system_end: usize,
     warmup: usize,
     runs: usize,
+    max_iterations: usize,
+    tolerance: f64,
 }
 
 fn parse_value<T: std::str::FromStr>(name: &str, raw: Option<String>) -> T {
@@ -28,6 +30,8 @@ fn parse_args() -> Args {
     let mut system_end = None;
     let mut warmup = 100;
     let mut runs = 2_000;
+    let mut max_iterations = 10_000;
+    let mut tolerance = 1e-9;
     while let Some(arg) = values.next() {
         match arg.as_str() {
             "--nodes" => nodes = Some(parse_value("--nodes", values.next())),
@@ -35,6 +39,17 @@ fn parse_args() -> Args {
             "--system-end" => system_end = Some(parse_value("--system-end", values.next())),
             "--warmup" => warmup = parse_value("--warmup", values.next()),
             "--runs" => runs = parse_value("--runs", values.next()),
+            "--max-iterations" => max_iterations = parse_value("--max-iterations", values.next()),
+            "--tolerance" => tolerance = parse_value("--tolerance", values.next()),
+            "--help" | "-h" => {
+                println!(concat!(
+                    "Usage: attention_tsv_benchmark --nodes N --system-start I --system-end J ",
+                    "[--warmup N] [--runs N] [--max-iterations N] [--tolerance X] EDGES.tsv\n",
+                    "Defaults: warmup=100 runs=2000 max-iterations=10000 tolerance=1e-9\n",
+                    "Measures the core audit only; reports convergence alongside latency."
+                ));
+                std::process::exit(0);
+            }
             _ if arg.starts_with('-') => panic!("unknown option: {}", arg),
             _ => {
                 assert!(edge_path.replace(arg).is_none(), "supply one edge TSV");
@@ -48,6 +63,8 @@ fn parse_args() -> Args {
         system_end: system_end.expect("missing --system-end"),
         warmup,
         runs,
+        max_iterations,
+        tolerance,
     }
 }
 
@@ -83,8 +100,11 @@ fn main() {
     let topology = load_topology(&args);
     let pruner = TauSpectralPruner::builder()
         .system_start_idx(args.system_start)
+        .max_iterations(args.max_iterations)
+        .tolerance(args.tolerance)
         .spectral_only()
-        .build();
+        .try_build()
+        .expect("invalid benchmark solver settings");
     let mut workspace = PrunerWorkspace::with_capacity(args.nodes, topology.edge_count());
 
     for _ in 0..args.warmup {
@@ -95,6 +115,8 @@ fn main() {
 
     let mut samples = Vec::with_capacity(args.runs);
     let mut checksum = 0.0;
+    let mut converged_runs = 0;
+    let mut total_iterations = 0;
     for _ in 0..args.runs {
         let started = Instant::now();
         let result = pruner
@@ -102,6 +124,8 @@ fn main() {
             .unwrap();
         samples.push(started.elapsed().as_nanos());
         checksum += result.connectivity_score;
+        converged_runs += usize::from(result.diagnostics.solver_converged);
+        total_iterations += result.diagnostics.solver_iterations;
     }
     samples.sort_unstable();
     let mean_us = samples.iter().sum::<u128>() as f64 / args.runs as f64 / 1_000.0;
@@ -110,7 +134,8 @@ fn main() {
         concat!(
             "{{\"schema_version\":1,\"nodes\":{},\"edges\":{},\"warmup\":{},",
             "\"runs\":{},\"p50_us\":{:.6},\"p95_us\":{:.6},",
-            "\"p99_us\":{:.6},\"mean_us\":{:.6},\"checksum\":{:.17}}}"
+            "\"p99_us\":{:.6},\"mean_us\":{:.6},\"checksum\":{},",
+            "\"max_iterations\":{},\"tolerance\":{},\"converged_runs\":{},\"mean_iterations\":{}}}"
         ),
         args.nodes,
         topology.edge_count(),
@@ -120,6 +145,14 @@ fn main() {
         percentile(&samples, 0.95),
         percentile(&samples, 0.99),
         mean_us,
-        checksum
+        if checksum.is_finite() {
+            checksum.to_string()
+        } else {
+            "null".to_string()
+        },
+        args.max_iterations,
+        args.tolerance,
+        converged_runs,
+        total_iterations as f64 / args.runs as f64
     );
 }

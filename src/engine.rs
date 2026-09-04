@@ -241,8 +241,11 @@ impl Default for PrunerDiagnostics {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PolicyAction {
+    /// No containment action under the configured policy; not proof of benign input.
     Allow,
+    /// A candidate island without a blocking trigger. The caller decides what to do.
     GarbageCollect,
+    /// A blocking trigger or fail-closed condition. No external action is executed.
     FatalBlock,
 }
 
@@ -339,6 +342,10 @@ impl TauSpectralPruner {
     ///
     /// Allocates an internal `PrunerWorkspace`. For hot streaming loops, use
     /// [`prune_with_workspace`](Self::prune_with_workspace) to reuse numeric and CSR buffers.
+    ///
+    /// `system_boundary_len` is the inclusive final protected node index, despite
+    /// its historical name. Zero disables system policy. The first protected
+    /// index is set by [`PrunerBuilder::system_start_idx`].
     pub fn prune(
         &self,
         topology: &Topology,
@@ -888,21 +895,26 @@ impl Default for PrunerBuilder {
 }
 
 impl PrunerBuilder {
+    /// Injects the finite partition boundary; defaults to `0.0`.
     pub fn tau(mut self, value: f64) -> Self {
         self.tau = value;
         self
     }
 
+    /// Sets the signature density-ratio trigger threshold; defaults to `2.0`.
     pub fn threat_threshold(mut self, value: f64) -> Self {
         self.threat_threshold = value;
         self
     }
 
+    /// Sets a positive iteration budget; defaults to `10_000`.
+    /// Exhaustion is reported in [`PrunerDiagnostics::solver_converged`].
     pub fn max_iterations(mut self, value: usize) -> Self {
         self.max_iterations = value;
         self
     }
 
+    /// Sets a positive finite convergence tolerance; defaults to `1e-9`.
     pub fn tolerance(mut self, value: f64) -> Self {
         self.tolerance = value;
         self
@@ -913,6 +925,8 @@ impl PrunerBuilder {
         self
     }
 
+    /// Sets the first protected node index; defaults to `5`.
+    /// The end supplied to [`TauSpectralPruner::prune`] is inclusive.
     pub fn system_start_idx(mut self, value: usize) -> Self {
         self.system_start_idx = value;
         self
@@ -948,8 +962,9 @@ impl PrunerBuilder {
         self
     }
 
-    /// Disables all security heuristics while retaining the spectral partition.
-    /// This is intended for reproducible baseline and ablation experiments.
+    /// Disables density, instruction-neglect, and single-token triggers.
+    /// Boundary validation and any configured connectivity threshold remain active.
+    /// This supports reproducible baseline and ablation experiments.
     pub fn spectral_only(mut self) -> Self {
         self.density_ratio_enabled = false;
         self.instruction_neglect_enabled = false;

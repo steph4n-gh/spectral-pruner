@@ -1,7 +1,9 @@
 """Offline evaluation and CLI contract checks; no model downloads required."""
 
 import argparse
+import contextlib
 import copy
+import io
 import json
 import math
 import os
@@ -10,6 +12,7 @@ import tempfile
 import unittest
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import evaluate
@@ -75,6 +78,45 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(evaluate.roc_auc([0, 0, 1, 1], [0, 1, 2, 3]), 1.0)
         self.assertEqual(evaluate.roc_auc([0, 0, 1, 1], [3, 2, 1, 0]), 0.0)
 
+    def test_prediction_files_omit_text_and_tokens_but_preserve_provenance(self):
+        records = [{"source_index": i, "text": f"private sample {i}", "label": i}
+                   for i in range(2)]
+        graph = SimpleNamespace(node_count=7, selected_layers=[3])
+        metadata = {"node_count": 7, "prompt_sha256": "prompt-digest",
+                    "tokens": ["private", " sample", " 0"], "model_revision": "model-commit"}
+        runtime = SimpleNamespace(
+            load_model=lambda *args: (None, SimpleNamespace(
+                config=SimpleNamespace(_commit_hash="model-commit")), "cpu"),
+            extract_attention_bundle=lambda *args, **kwargs: SimpleNamespace(
+                aggregate=graph, layers=[graph]),
+            graph_metadata=lambda *args: copy.deepcopy(metadata),
+        )
+        audit = {"connectivity_score": 0.2, "action": "ALLOW", "diagnostics": {
+            "solver_converged": True, "solver_iterations": 12, "relative_residual": 1e-10,
+            "conductance": 0.3, "density_ratio": 0.4, "density_ratio_status": "finite",
+            "instruction_connection": 0.5, "connectivity_triggered": False,
+            "density_triggered": False, "instruction_neglect_triggered": False,
+            "single_token_triggered": False,
+        }}
+        with patch.dict("sys.modules", {"attention_graph": runtime}), \
+                patch.object(evaluate, "parse_args", return_value=self.args), \
+                patch.object(evaluate, "load_records", return_value=(records, self.dataset)), \
+                patch.object(evaluate, "run_auditor", return_value=audit), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            evaluate.main()
+        rows = [json.loads(line) for line in (self.root / "predictions.jsonl").read_text().splitlines()]
+        self.assertEqual(len(rows), 2)
+        for record, row in zip(records, rows):
+            self.assertNotIn("tokens", row["graph"])
+            self.assertEqual(row["graph"]["prompt_sha256"], "prompt-digest")
+            self.assertEqual(row["graph"]["model_revision"], "model-commit")
+            self.assertEqual(row["text_sha256"], sha256(record["text"].encode()).hexdigest())
+            self.assertEqual(row["signals"]["token_count"], 7)
+        for filename in ("predictions.jsonl", "run.json", "summary.json"):
+            contents = (self.root / filename).read_text()
+            self.assertNotIn('"tokens"', contents)
+            self.assertNotIn("private", contents)
+
     def test_calibration_respects_false_positive_ceiling(self):
         rows = [{"label": label, "score": score} for label, score in
                 [(0, 0), (0, 2), (1, 1), (1, 3)]]
@@ -94,6 +136,15 @@ class CliContractTests(unittest.TestCase):
         return subprocess.run([str(AUDITOR), "--nodes", str(nodes),
                                "--system-start", str(start), "--system-end", str(end),
                                *flags, "-"], input=edges, text=True, capture_output=True)
+
+    def test_version_and_help_need_no_graph(self):
+        for flag in ("--version", "-V"):
+            result = subprocess.run([str(AUDITOR), flag], text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertRegex(result.stdout, r"^spectral-pruner-audit \d+\.\d+\.\d+")
+        result = subprocess.run([str(AUDITOR), "--help"], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--version", result.stdout)
 
     def test_invalid_tau_and_overflow_emit_errors_without_a_verdict(self):
         for tau in ("NaN", "nan", "inf", "-inf"):

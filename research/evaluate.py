@@ -350,11 +350,15 @@ def main() -> None:
             )
             for layer_graph in bundle.layers
         ]
+        # The extractor preserves tokens for inspection; prediction artifacts
+        # keep only graph settings and hashes, since tokens can reconstruct text.
+        metadata = graph_metadata(graph, args.model, revision)
+        metadata.pop("tokens", None)
         row = {
             "source_index": record["source_index"],
             "label": record["label"],
             "text_sha256": sha256(record["text"].encode("utf-8")).hexdigest(),
-            "graph": graph_metadata(graph, args.model, revision),
+            "graph": metadata,
             "solver": {key: diagnostics[key] for key in (
                 "solver_converged", "solver_iterations", "relative_residual",
             )},

@@ -2,6 +2,7 @@
 use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology}; // Imports directly from the crate namespace
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("=== [\u{03C4}-Gate] Dependency Topology Security Audit ===");
 
     // 1. Initialize the Pruner with rigid Zero-Trust constraints
@@ -38,16 +39,16 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
         "Algebraic Conn Score (\u{03BB}\u{2082}): {:.6}",
         resolution.connectivity_score
     );
-    println!("Secured Mainland Nodes  : {:?}", resolution.mainland_nodes);
-    println!("Quarantined Anomaly Set  : {:?}", resolution.island_nodes);
+    println!("Mainland Nodes  : {:?}", resolution.mainland_nodes);
+    println!("Candidate Island Nodes  : {:?}", resolution.island_nodes);
     println!("--------------------------------------------------");
 
-    // 5. Enforce Infrastructure Containment Contract
+    // 5. Illustrate a caller response; no dependency or build is changed.
     match resolution.action {
         PolicyAction::FatalBlock => {
             eprintln!(
-                "[CRITICAL] \u{1F6AB} ALERT: Topologically isolated malicious node \
-                detected at index {:?}. Upstream supply chain compromise suspected.",
+                "[CRITICAL] \u{1F6AB} ALERT: Candidate dependency island \
+                detected at index {:?}. Configured topology policy triggered.",
                 resolution.island_nodes
             );
             std::process::exit(1);
@@ -55,13 +56,13 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
         PolicyAction::GarbageCollect => {
             println!(
                 "[ADVISORY] \u{26A0}\u{FE0F} Dead code or unlinked sub-graph found at index {:?}. \
-                Purging from active compilation memory.",
+                No package is removed by this example.",
                 resolution.island_nodes
             );
         }
         PolicyAction::Allow => {
             println!(
-                "[NOMINAL] \u{2705} Topology architecture verified. Gateway opened successfully."
+                "[NOMINAL] \u{2705} No containment action selected under this topology policy."
             );
         }
     }

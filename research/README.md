@@ -75,7 +75,10 @@ cargo run --release --example attention_tsv_benchmark -- \
   artifacts/attention.tsv
 ```
 
-The benchmark reports mean, p50, p95, and p99 latency as versioned JSON.
+The benchmark reports mean, p50, p95, and p99 latency as versioned JSON, plus
+`converged_runs`, `mean_iterations`, and the solver settings. Its defaults match
+the evaluator: `--max-iterations 10000 --tolerance 1e-9`. Require all measured
+runs to converge before treating latency as the cost of a completed solve.
 
 ## Evaluate a labeled benchmark
 
@@ -93,7 +96,10 @@ python3 research/evaluate.py \
 The output includes per-example hashes and signals, AUROC for algebraic
 connectivity, conductance, density ratio, and instruction connection, plus
 confusion matrices for the full policy and each mechanism-disabled ablation.
-Raw benchmark text is deliberately not copied to the result files.
+Prediction files omit both raw benchmark text and token strings, preserving
+hashes, counts, and graph settings. Standalone extraction metadata retains tokens
+for inspection. Evaluation artifacts written before this change may contain
+token strings; existing files are not rewritten automatically.
 It also reports token-count AUROC and layerwise connectivity mean, minimum,
 range, slope, and first-to-last drop so apparent spectral gains can be checked
 against a trivial length baseline and single-snapshot artifacts.
