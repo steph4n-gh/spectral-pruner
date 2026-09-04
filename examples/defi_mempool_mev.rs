@@ -100,6 +100,7 @@ impl MempoolAuditSuite {
 }
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("==========================================================================");
     println!("   ⚡ [τ-Gate] DEFI MEMPOOL SANDWICH & FLASHLOAN EXPLOIT AUDITOR ⚡");
     println!("==========================================================================");
@@ -291,7 +292,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     );
     println!("--------------------------------------------------------------------------");
     println!(
-        "Secured Mainland Transactions ({} txs safely allowed in block):",
+        "Mainland Transactions ({} synthetic txs):",
         resolution.mainland_nodes.len()
     );
     for &id in &resolution.mainland_nodes {
@@ -306,7 +307,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     }
     println!("--------------------------------------------------------------------------");
     println!(
-        "Quarantined Malicious MEV Sandwich Cluster ({} txs blocked):",
+        "Candidate Island ({} synthetic txs):",
         resolution.island_nodes.len()
     );
     for &id in &resolution.island_nodes {
@@ -321,25 +322,25 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     }
     println!("==========================================================================");
 
-    // 8. Enforce Block Assembly Gatekeeper Policy
+    // 8. Illustrate a policy response; no live mempool or block is changed.
     match resolution.action {
         PolicyAction::FatalBlock => {
-            println!("\n[BLOCK CONTAINS MALICIOUS ATTACK BUNDLE] 🚫 SANDWICH EXPLOIT BLOCKED!");
+            println!("\n[SIMULATED POLICY TRIGGER] Candidate transaction island identified.");
             println!(
-                "Quarantined Flashloan-assisted Sandwich bundle at indices {:?}.",
+                "The constructed transaction scenario produced island indices {:?}.",
                 resolution.island_nodes
             );
             println!(
-                "The isolated sub-graph represents a closed transaction ring bribing the miner."
+                "The scenario assigns an attack role to this ring; topology alone does not prove it."
             );
-            println!("Stripping these transactions from active block-assembly template.");
+            println!("Ending this simulation with exit 1; no real transaction was changed.");
             std::process::exit(1);
         }
         PolicyAction::GarbageCollect => {
-            println!("\n[ADVISORY] ⚠️ Orphanded or low-priority transactions isolated. Stripping from active mempool pool.");
+            println!("\n[ADVISORY] ⚠️ Orphanded or low-priority transactions isolated. No real mempool is modified.");
         }
         PolicyAction::Allow => {
-            println!("\n[NOMINAL] ✅ Block transaction template verified. Zero intrusive MEV sandwich rings isolated.");
+            println!("\n[NOMINAL] ✅ No containment action selected under this topology policy.");
         }
     }
 

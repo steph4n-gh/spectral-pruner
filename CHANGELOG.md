@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Add a tested quick start, full CLI reference, mathematical contract, contributor
+  guide, release checklist, and an actionable roadmap. Clarify source-candidate
+  installation, verdict handling, and the historical scope of attention results.
+- Refresh package discovery metadata and add CLI `--version` / `-V` output.
+- Label domain examples as simulations and describe policy recommendations
+  without claiming to modify external systems or certify their safety.
+- Report convergence beside benchmark latency; expose iteration and tolerance
+  settings on the weighted-TSV benchmark, defaulting to 10000 and 1e-9.
+- Omit token strings from newly written evaluation predictions while preserving
+  provenance and numerical signals. Existing artifacts are not rewritten.
+- Verify the quick start and public documentation in CI, and add regression
+  coverage for evaluation artifact contents and CLI help/version output.
+- Update checkout, cache, and Python setup actions to the Node 24 runtime.
+
 ## 2.0.0-rc.1 — release candidate
 
 ### Stabilization

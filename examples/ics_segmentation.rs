@@ -2,6 +2,7 @@
 use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology};
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("=== [τ-Gate] Industrial Control Systems (ICS) OT Segmentation Audit ===");
 
     // 1. Configure the Pruner for strict OT network segregation boundaries
@@ -38,20 +39,17 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     println!("\n[Audit Results]");
     println!("--------------------------------------------------");
     println!("Containment Action Verdict: {}", resolution.action);
-    println!(
-        "Secured Safety Ring Nodes : {:?}",
-        resolution.mainland_nodes
-    );
-    println!("Quarantined Intrusion Set : {:?}", resolution.island_nodes);
+    println!("Mainland Ring Nodes : {:?}", resolution.mainland_nodes);
+    println!("Candidate Island Nodes : {:?}", resolution.island_nodes);
     println!("--------------------------------------------------");
 
-    // 5. Enforce Safety Lockout Policy
+    // 5. Illustrate a caller response; no device configuration is changed.
     match resolution.action {
         PolicyAction::FatalBlock => {
-            println!("[SAFETY WARNING] 🚫 CRITICAL SEGMENTATION BREACH DETECTED!");
+            println!("[SIMULATED POLICY TRIGGER] Candidate network segment identified.");
             println!(
-                "Rogue device at index {:?} is attempting direct unsegmented access \
-                 to the DMZ boundary space. Tripping safety network interlocks.",
+                "Candidate device indices {:?} have links \
+                 to the DMZ boundary space. No safety interlock is controlled by this example.",
                 resolution.island_nodes
             );
             std::process::exit(1);
@@ -59,12 +57,12 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
         PolicyAction::GarbageCollect => {
             println!(
                 "[ADVISORY] ⚠️ Unconfigured legacy segment found at index {:?}. \
-                 Disabling port on active switch configuration.",
+                 No switch port is changed by this example.",
                 resolution.island_nodes
             );
         }
         PolicyAction::Allow => {
-            println!("[NOMINAL] ✅ Network segmentation alignment verified. All zones secure.");
+            println!("[ALLOW] No containment action selected under this topology policy.");
         }
     }
 

@@ -80,8 +80,9 @@ returned partition vectors. Do not describe the entire call as allocation-free.
 ## Audit interchange
 
 `spectral-pruner-audit` reads three-column weighted TSV and emits schema-versioned
-JSON. A path of `-` streams TSV through stdin, allowing the Python attention
-extractor or another runtime to feed the Rust core without temporary files.
+JSON. A path of `-` accepts TSV through stdin, allowing another runtime to feed
+the Rust core without temporary files. The CLI buffers one complete graph before
+auditing. See the [CLI reference](docs/cli.md) for process status and verdict handling.
 
 The CLI exposes the τ boundary, signature-density threshold, instruction
 threshold, optional connectivity threshold, all heuristic-disable switches, and
@@ -96,6 +97,9 @@ Before handing off a change, run:
 cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
 cargo test --all-targets
+cargo test --doc
+cargo run --quiet --example quick_start
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 cargo build --release --bin spectral-pruner-audit
 python3 -m py_compile research/*.py
 python3 -m unittest discover -s research -p 'test_*.py' -v
@@ -104,7 +108,7 @@ python3 research/numerical_oracle.py
 
 For measured performance, use `examples/attention_tsv_benchmark.rs` on an
 extracted graph and record the model revision, node/edge counts, warmup, runs,
-host, and release profile.
+host, release profile, iteration budget, tolerance, and converged-run count.
 
 ## Research workflow
 

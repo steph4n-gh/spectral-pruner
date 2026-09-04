@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Stable Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -29,7 +29,7 @@ jobs:
           components: clippy, rustfmt
 
       - name: Cache Cargo Dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/bin/
@@ -50,11 +50,17 @@ jobs:
       - name: Run Test Suite
         run: cargo test --all-targets --verbose
 
+      - name: Verify public documentation and quick start
+        run: |
+          cargo test --doc
+          cargo run --quiet --example quick_start
+          RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+
       - name: Build audit CLI
         run: cargo build --release --bin spectral-pruner-audit
 
       - name: Install research test runtime
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 

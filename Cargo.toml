@@ -3,12 +3,13 @@ name = "spectral-pruner"
 version = "2.0.0-rc.1"
 edition = "2021"
 authors = ["Stephan Arrington"]
-description = "A zero-dependency weighted spectral graph auditing kernel with deterministic Fiedler partitioning."
+description = "Zero-dependency weighted graph auditing with deterministic spectral partitioning and explainable diagnostics."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/steph4n-gh/spectral-pruner"
+documentation = "https://docs.rs/spectral-pruner"
 readme = "README.md"
-keywords = ["spectral", "graph", "fiedler", "zero-trust", "topology"]
-categories = ["algorithms", "science", "cryptography"]
+keywords = ["spectral", "graph", "fiedler", "topology", "auditing"]
+categories = ["algorithms", "science", "command-line-utilities"]
 
 [dependencies]
 # Absolute Zero Dependencies mandated.

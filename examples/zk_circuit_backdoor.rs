@@ -129,11 +129,12 @@ impl R1CSCircuit {
 }
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("==========================================================================");
     println!("   ⚡ [τ-Gate] ZERO-KNOWLEDGE (ZK-SNARK) R1CS COMPILER AUDITOR ⚡");
     println!("==========================================================================");
     println!("Detecting stealthy underconstrained signal backdoors and witness-forgery");
-    println!("circuits injected into the AST by a compromised proof compiler compiler.\n");
+    println!("circuits injected into the AST by a compromised proof compiler.\n");
 
     let mut circuit = R1CSCircuit::new();
 
@@ -279,7 +280,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     );
     println!("--------------------------------------------------------------------------");
     println!(
-        "Legitimate Mainland Cluster ({} signals):",
+        "Mainland Cluster ({} signals):",
         resolution.mainland_nodes.len()
     );
     for &id in &resolution.mainland_nodes {
@@ -290,7 +291,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     }
     println!("--------------------------------------------------------------------------");
     println!(
-        "Quarantined Anomalous Island ({} signals):",
+        "Candidate Island ({} signals):",
         resolution.island_nodes.len()
     );
     for &id in &resolution.island_nodes {
@@ -301,23 +302,23 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     }
     println!("==========================================================================");
 
-    // 8. Enforce Build Gatekeeper Policy
+    // 8. Illustrate a policy response; no proof compiler is connected.
     match resolution.action {
         PolicyAction::FatalBlock => {
-            println!("\n[FATAL] 🚫 ZK-SNARK WITNESS FORGERY HOLE DETECTED!");
-            println!(
-                "The compiler isolated a highly dense, topologically decoupled constraint loop"
-            );
+            println!("\n[SIMULATED POLICY TRIGGER] Candidate constraint island identified.");
+            println!("The audit isolated a dense, topologically decoupled constraint loop");
             println!("quarantined at indices {:?}.", resolution.island_nodes);
-            println!("This backdoor enables witness forging without executing legitimate Poseidon hashes.");
-            println!("Aborting compilation to prevent security exploitation in production proofs.");
+            println!("The scenario assigns a backdoor role to this loop; proof soundness is not evaluated.");
+            println!(
+                "Ending this simulation with exit 1; no proof compilation was run or modified."
+            );
             std::process::exit(1);
         }
         PolicyAction::GarbageCollect => {
-            println!("\n[WARNING] ⚠️ Dead constraint blocks isolated. Pruning dead signals from R1CS system.");
+            println!("\n[WARNING] ⚠️ Dead constraint blocks isolated. No real constraint system is modified.");
         }
         PolicyAction::Allow => {
-            println!("\n[NOMINAL] ✅ ZK-SNARK R1CS constraint matrix verified. Zero mathematical backdoors isolated.");
+            println!("\n[NOMINAL] ✅ No containment action selected under this topology policy.");
         }
     }
 

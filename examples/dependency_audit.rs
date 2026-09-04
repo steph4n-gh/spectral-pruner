@@ -1,21 +1,20 @@
 //! ⚡ [τ-Gate] Supply Chain Dependency Topology Auditor Example
 //!
-//! This example demonstrates how to parse a Cargo.lock dependency structure
-//! dynamically (without external parser dependencies) to build a relational
-//! dependency graph, run the Fiedler bisection solver, and audit the software
-//! supply chain for topological isolation anomalies.
+//! Reads local package names for context, then builds a separate synthetic graph.
+//! It does not reconstruct actual dependency edges or audit the real lockfile.
 
 use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("==========================================================================");
     println!("     ⚡ [τ-Gate] SOFTWARE SUPPLY CHAIN DEPENDENCY TOPOLOGY AUDITOR ⚡     ");
     println!("==========================================================================");
-    println!("Parsing dependency linkages to isolate stealthy dependency backdoor injections.\n");
+    println!("Demonstrating named nodes and policy output on a synthetic dependency graph.\n");
 
-    // 1. Read the project's actual Cargo.lock to verify zero-trust local lock status
+    // 1. Read local package names for display only; these do not define the audit graph.
     let lock_path = "Cargo.lock";
     println!("[+] Reading active lockfile from: {}", lock_path);
     let lock_content = fs::read_to_string(lock_path)?;
@@ -43,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Mainland: axum -> tower -> tokio -> serde -> app-core
     // Island:   untrusted-leftpad-utility
     // System:   libc, compiler-linker
-    println!("\n[+] Constructing high-dimensional production workspace dependency tree...");
+    println!("\n[+] Constructing the synthetic workspace dependency graph...");
 
     let mut registry = DependencyRegistry::new();
 
@@ -107,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--------------------------------------------------------------------------");
 
     println!(
-        "Secured Mainland Packages ({} crates safely approved):",
+        "Mainland Packages ({} synthetic crates):",
         resolution.mainland_nodes.len()
     );
     for &id in &resolution.mainland_nodes {
@@ -131,7 +130,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("  -> Quarantined: {}", package_names[id]);
         }
         println!("This cluster builds unauthorized direct bridges to system boundary sinks.");
-        println!("Aborting build script compilation to prevent malicious code injection.");
+        println!("Ending this simulation with exit 1; no build script was run or modified.");
         std::process::exit(1);
     }
 

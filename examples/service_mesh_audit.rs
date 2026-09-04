@@ -2,6 +2,7 @@
 use spectral_pruner::{PolicyAction, TauSpectralPruner, Topology};
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("=== [τ-Gate] Kubernetes Service Mesh & Microservice Segregation Audit ===");
 
     // 1. Configure the pruner for zero-trust microservice call auditing.
@@ -41,19 +42,19 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     println!("--------------------------------------------------");
     println!("Service Mesh Action Verdict: {}", resolution.action);
     println!(
-        "Secured Service Cluster    : {:?}",
+        "Mainland Service Cluster    : {:?}",
         resolution.mainland_nodes
     );
-    println!("Quarantined Container Set  : {:?}", resolution.island_nodes);
+    println!("Candidate Container Set  : {:?}", resolution.island_nodes);
     println!("--------------------------------------------------");
 
-    // 5. Enforce Network Policy Containment
+    // 5. Illustrate a caller response; no network policy is changed.
     match resolution.action {
         PolicyAction::FatalBlock => {
-            println!("[MESH ALERT] 🚫 CRITICAL OUT-OF-MESH COMMUNICATION BYPASS DETECTED!");
+            println!("[SIMULATED POLICY TRIGGER] Candidate service island identified.");
             println!(
-                "Container at index {:?} is executing illegal direct connections to core system space.\n\
-                 Injecting istio/envoy network blocks to quarantine the compromised pod.",
+                "Candidate container indices {:?} triggered the configured topology policy.\n\
+                 A service-mesh integration could review this recommendation before containment.",
                 resolution.island_nodes
             );
             std::process::exit(1);
@@ -61,12 +62,12 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
         PolicyAction::GarbageCollect => {
             println!(
                 "[ADVISORY] ⚠️ Orphanded microservice or dead route detected at index {:?}. \
-                 Deregistering from service mesh directory.",
+                 No service is deregistered by this example.",
                 resolution.island_nodes
             );
         }
         PolicyAction::Allow => {
-            println!("[NOMINAL] ✅ Active call graph matches approved network policies.");
+            println!("[ALLOW] No containment action selected under this topology policy.");
         }
     }
 

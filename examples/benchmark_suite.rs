@@ -1,7 +1,7 @@
 //! ⚡ [τ-Gate] High-Resolution Workspace-Reuse Performance Benchmark Suite
 //!
-//! Production-grade microsecond latency percentiles (P50, P95, P99), throughput,
-//! and memory footprint verification for Spectral Graph Theory partitioning.
+//! Latency percentiles (P50, P95, P99), throughput, and convergence counts.
+//! End-to-end pruning allocates partitions; this does not measure memory usage.
 //!
 //! Evaluates both allocating `prune()` and workspace-reusing `prune_with_workspace()`
 //! across Small, Medium, Large, and Streaming topologies without external dependencies.
@@ -26,9 +26,11 @@ struct BenchStats {
     p95_us: f64,
     p99_us: f64,
     throughput_gps: f64, // Graphs per second
+    converged_runs: usize,
+    runs: usize,
 }
 
-fn compute_stats(mut samples_ns: Vec<u64>) -> BenchStats {
+fn compute_stats(mut samples_ns: Vec<u64>, converged_runs: usize) -> BenchStats {
     samples_ns.sort_unstable();
     let n = samples_ns.len();
     assert!(n > 0);
@@ -59,6 +61,8 @@ fn compute_stats(mut samples_ns: Vec<u64>) -> BenchStats {
         p95_us,
         p99_us,
         throughput_gps,
+        converged_runs,
+        runs: n,
     }
 }
 
@@ -75,24 +79,28 @@ fn profile_topology(
 
     // 1. Profile allocating prune()
     let mut alloc_samples = Vec::with_capacity(runs);
+    let mut alloc_converged = 0;
     for _ in 0..runs {
         let t0 = Instant::now();
-        let _ = pruner.prune(topo, system_boundary_len).unwrap();
+        let result = pruner.prune(topo, system_boundary_len).unwrap();
         alloc_samples.push(t0.elapsed().as_nanos() as u64);
+        alloc_converged += usize::from(result.diagnostics.solver_converged);
     }
-    let alloc_stats = compute_stats(alloc_samples);
+    let alloc_stats = compute_stats(alloc_samples, alloc_converged);
 
     // 2. Profile workspace-reusing prune_with_workspace()
     let mut ws = PrunerWorkspace::with_capacity(topo.num_nodes, topo.edges.len());
     let mut ws_samples = Vec::with_capacity(runs);
+    let mut ws_converged = 0;
     for _ in 0..runs {
         let t0 = Instant::now();
-        let _ = pruner
+        let result = pruner
             .prune_with_workspace(topo, system_boundary_len, &mut ws)
             .unwrap();
         ws_samples.push(t0.elapsed().as_nanos() as u64);
+        ws_converged += usize::from(result.diagnostics.solver_converged);
     }
-    let ws_stats = compute_stats(ws_samples);
+    let ws_stats = compute_stats(ws_samples, ws_converged);
 
     (alloc_stats, ws_stats)
 }
@@ -138,17 +146,23 @@ fn print_row(n: usize, edges: usize, alloc: &BenchStats, ws: &BenchStats) {
         speedup,
         RESET
     );
+    println!(
+        "  Converged: prune {}/{}; workspace {}/{}",
+        alloc.converged_runs, alloc.runs, ws.converged_runs, ws.runs
+    );
 }
 
 fn main() {
     println!("{}{}", BOLD, CYAN);
     println!("==========================================================================================");
-    println!("          ⚡ [τ-Gate] ADVANCED ZERO-ALLOCATION RELEASE BENCHMARK SUITE ⚡          ");
+    println!("          [τ-Gate] WORKSPACE-REUSE RELEASE BENCHMARK SUITE          ");
     println!("==========================================================================================");
     println!(
         "{}High-resolution microsecond latency percentiles (P50/P95/P99), throughput, and speedup.\n",
         RESET
     );
+    println!("Topology rows: max_iterations=500, tolerance=1e-6, momentum_beta=0.5.");
+    println!("Unconverged timings measure a capped solve, not a completed estimate.");
 
     // Warm-up phase
     print!(
@@ -232,6 +246,7 @@ fn main() {
 
     let mut stream_ws = PrunerWorkspace::with_capacity(32, 64);
     let stream_iterations = 10_000;
+    let mut stream_converged = 0;
     let stream_start = Instant::now();
 
     for iter in 0..stream_iterations {
@@ -240,14 +255,17 @@ fn main() {
         topo.add_edge(6 + (iter % 5), 7 + (iter % 5));
         topo.add_edge(iter % 6, 11);
 
-        let _ = pruner
+        let result = pruner
             .prune_with_workspace(&topo, 11, &mut stream_ws)
             .unwrap();
+        stream_converged += usize::from(result.diagnostics.solver_converged);
     }
 
     let stream_elapsed = stream_start.elapsed();
     let stream_throughput = (stream_iterations as f64) / stream_elapsed.as_secs_f64();
     let stream_avg_lat_us = (stream_elapsed.as_micros() as f64) / (stream_iterations as f64);
+    println!("Streaming includes graph construction; max_iterations=100, tolerance=1e-5.");
+    println!("Converged: {}/{}", stream_converged, stream_iterations);
 
     println!(
         " {}[+] Total Evaluations:{}   {:<10}",
@@ -268,16 +286,14 @@ fn main() {
         GREEN, RESET, stream_avg_lat_us
     );
 
-    // Systems Guarantees Summary
+    // Measurement scope
     println!("\n{}{}", BOLD, CYAN);
     println!("==========================================================================================");
-    println!(
-        "                         🛡️ ZERO-DEPENDENCY SYSTEMS ATTESTATION 🛡️                       "
-    );
+    println!("                         BENCHMARK SCOPE                       ");
     println!("==========================================================================================");
     println!("{}", RESET);
     println!(
-        " {}[+] Zero Dependencies:       {} Pure bare-metal Rust stdlib. Verified by `cargo tree`.",
+        " {}[+] Zero Dependencies:       {} Rust standard library only; inspect with `cargo tree`.",
         GREEN, RESET
     );
     println!(

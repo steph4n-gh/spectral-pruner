@@ -142,6 +142,7 @@ impl AttentionGraphAuditor {
 }
 
 fn main() -> Result<(), spectral_pruner::PrunerError> {
+    println!("Synthetic scenario: outputs are recommendations; no external system is changed.");
     println!("==========================================================================");
     println!("   ⚡ [τ-Gate] SYNTHETIC ATTENTION-GRAPH VISUALIZATION ⚡");
     println!("==========================================================================");
@@ -241,7 +242,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     );
     println!("--------------------------------------------------------------------------");
     println!(
-        "Secured User Context Tokens ({} tokens safely passed to LLM):",
+        "Mainland Context Tokens ({} synthetic tokens):",
         resolution.mainland_nodes.len()
     );
     print!("  \"");
@@ -251,7 +252,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     println!("\"");
     println!("--------------------------------------------------------------------------");
     println!(
-        "Quarantined Jailbreak Prompt Cluster ({} tokens blocked):",
+        "Candidate Island ({} synthetic tokens):",
         resolution.island_nodes.len()
     );
     print!("  \"");
@@ -261,7 +262,7 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
     println!("\"");
     println!("==========================================================================");
 
-    // 8. Enforce Safety Guardrail Policy
+    // 8. Illustrate a policy response; no model is connected.
     match resolution.action {
         PolicyAction::FatalBlock => {
             println!("\n[SYNTHETIC POLICY TRIGGERED] Role-coded attack scenario isolated.");
@@ -270,15 +271,17 @@ fn main() -> Result<(), spectral_pruner::PrunerError> {
                 "quarantined at token indices {:?}.",
                 resolution.island_nodes
             );
-            println!("This cluster exhibits direct safety-override attempts bypassing context.");
+            println!("Attack roles are assigned by this scenario; this is not a model-behavior measurement.");
             println!("No real inference was executed or blocked by this example.");
             std::process::exit(1);
         }
         PolicyAction::GarbageCollect => {
-            println!("\n[ADVISORY] ⚠️ Context drift tokens isolated. Masking tokens out of inference window.");
+            println!(
+                "\n[ADVISORY] ⚠️ Context drift tokens isolated. No inference window is modified."
+            );
         }
         PolicyAction::Allow => {
-            println!("\n[NOMINAL] ✅ Inference graph is safe. Proceeding with prompt generation.");
+            println!("\n[NOMINAL] ✅ No containment action selected under this topology policy.");
         }
     }
 

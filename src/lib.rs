@@ -3,6 +3,12 @@
 //! The crate provides injected-τ Fiedler partitioning, protected-boundary
 //! diagnostics, weighted conductance and density measures, configurable policy
 //! triggers, and reusable numeric/CSR workspace buffers.
+//!
+//! Audits return measurements and a policy recommendation; they do not change
+//! the supplied graph or execute containment. Inspect convergence before using
+//! connectivity estimates quantitatively. The optional Python research harness
+//! is separate from this dependency-free Rust crate.
+#![doc = concat!("\n# Quick start\n\n```rust\n", include_str!("../examples/quick_start.rs"), "\n```\n")]
 
 pub mod engine;
 pub mod error;

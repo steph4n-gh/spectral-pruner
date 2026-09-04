@@ -41,6 +41,7 @@ fn usage() -> &'static str {
        --disable-density        Disable the density-ratio trigger\n\
        --disable-neglect        Disable the instruction-neglect trigger\n\
        --disable-tripwire       Disable the single-token trigger\n\
+       --version                Print the package version\n\
        --help                   Print this help"
 }
 
@@ -93,6 +94,10 @@ fn parse_cli() -> Result<Cli, String> {
             "--disable-density" => density_enabled = false,
             "--disable-neglect" => neglect_enabled = false,
             "--disable-tripwire" => tripwire_enabled = false,
+            "--version" | "-V" => {
+                println!("spectral-pruner-audit {}", env!("CARGO_PKG_VERSION"));
+                process::exit(0);
+            }
             "--help" | "-h" => {
                 println!("{}", usage());
                 process::exit(0);

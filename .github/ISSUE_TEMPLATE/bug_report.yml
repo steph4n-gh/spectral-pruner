@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible library, CLI, or research-harness problem.
+title: "bug: "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version and environment
+      description: Crate version or commit, operating system, and Rust/Python version.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a small edge list or example and all relevant builder or CLI settings.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+      description: Include convergence diagnostics and a reference value for numerical discrepancies.
+    validations:
+      required: true
