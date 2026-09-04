@@ -14,6 +14,7 @@
   provenance and numerical signals. Existing artifacts are not rewritten.
 - Verify the quick start and public documentation in CI, and add regression
   coverage for evaluation artifact contents and CLI help/version output.
+- Update checkout, cache, and Python setup actions to the Node 24 runtime.
 
 ## 2.0.0-rc.1 — release candidate
 
