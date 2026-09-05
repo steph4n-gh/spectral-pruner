@@ -57,7 +57,7 @@ class BehavioralTests(unittest.TestCase):
         pairs.append({**pairs[0], "pair_id": "leaked", "split": "evaluation"})
         with self.assertRaisesRegex(ValueError, "shared across"):
             self.load(pairs)
-        with self.assertRaisesRegex(ValueError, "both calibration and evaluation"):
+        with self.assertRaisesRegex(ValueError, "all required splits"):
             self.load(self.pairs[:4])
 
     def test_prompt_contains_only_task_and_selected_context(self):
