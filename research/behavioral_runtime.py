@@ -88,9 +88,8 @@ class BehavioralModel:
         elif self.device == "mps":
             self.torch.mps.synchronize()
 
-    def observe(self, system_text, user_text):
-        from evaluate import run_auditor
-
+    def capture(self, system_text, user_text):
+        """Generate once normally and once instrumented; retain only the prefill."""
         tools, args = self.graph_tools, self.args
         self.sync()
         total_start = time.perf_counter()
@@ -126,6 +125,35 @@ class BehavioralModel:
                 prefix, baseline.sequences[0].tolist(), observed.sequences[0].tolist()
             )
             snapshot = prefill_snapshot(observed.attentions, len(prefix))
+        return {
+            "prompt": prompt, "prefix": prefix, "system_start": system_start,
+            "system_end": system_end, "snapshot": snapshot,
+            "observation": {
+                "response": self.tokenizer.decode(continuation, skip_special_tokens=True),
+                "finish_reason": "eos" if continuation[-1] in self.eos_ids else "length",
+                "generated_tokens": len(continuation),
+                "prefix_token_ids_sha256": sha256(json.dumps(prefix).encode()).hexdigest(),
+                "continuation_token_ids_sha256": sha256(json.dumps(continuation).encode()).hexdigest(),
+                "instrumentation_preserved_token_ids": True,
+                "seconds": {
+                    "prompt_preparation": ready - total_start,
+                    "baseline_generation": baseline_end - ready,
+                    "instrumented_generation": observed_end - baseline_end,
+                },
+            },
+        }
+
+    def observe(self, system_text, user_text):
+        from evaluate import run_auditor
+
+        total_start = time.perf_counter()
+        captured = self.capture(system_text, user_text)
+        tools, args = self.graph_tools, self.args
+        prompt, prefix = captured["prompt"], captured["prefix"]
+        system_start, system_end = captured["system_start"], captured["system_end"]
+        snapshot = captured["snapshot"]
+        graph_start = time.perf_counter()
+        with self.torch.inference_mode():
             bundle = tools.bundle_from_attentions(
                 self.tokenizer, prompt, prefix, system_start, system_end, snapshot,
                 layers=args.layers, top_k=args.top_k, min_weight=args.min_weight,
@@ -148,12 +176,7 @@ class BehavioralModel:
         metadata = tools.graph_metadata(graph, args.model, args.revision)
         metadata.pop("tokens")
         return {
-            "response": self.tokenizer.decode(continuation, skip_special_tokens=True),
-            "finish_reason": "eos" if continuation[-1] in self.eos_ids else "length",
-            "generated_tokens": len(continuation),
-            "prefix_token_ids_sha256": sha256(json.dumps(prefix).encode()).hexdigest(),
-            "continuation_token_ids_sha256": sha256(json.dumps(continuation).encode()).hexdigest(),
-            "instrumentation_preserved_token_ids": True,
+            **captured["observation"],
             "graph": metadata,
             "signals": {
                 "negative_algebraic_connectivity": -audit["connectivity_score"],
@@ -163,10 +186,8 @@ class BehavioralModel:
             "solver": {key: audit["diagnostics"][key] for key in
                        ("solver_converged", "solver_iterations", "relative_residual")},
             "seconds": {
-                "prompt_preparation": ready - total_start,
-                "baseline_generation": baseline_end - ready,
-                "instrumented_generation": observed_end - baseline_end,
-                "graph_conversion": graph_end - observed_end,
+                **captured["observation"]["seconds"],
+                "graph_conversion": graph_end - graph_start,
                 "auditor": audit_end - graph_end,
                 "experiment_total": audit_end - total_start,
             },

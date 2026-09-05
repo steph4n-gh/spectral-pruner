@@ -29,6 +29,39 @@ and false-positive summaries. The Rust kernel remains unchanged.
 The [completed results](results/2026-09-04-verified-attacks.md) report confirmed
 attacks and a negative finding for the current aggregate-connectivity signal.
 
+## Test focused instruction signals
+
+The [bounded development protocol](FOCUSED_SIGNAL_STUDY.md) checks whether four
+heads selected on clean tasks give a useful signal before head averaging. It
+maps the caller's system instructions, actual task, and external document from
+their original insertion locations. Fake roles, repeated instructions, and
+closing tags inside the document cannot relabel these measurement masks.
+This does not sanitize the model input or prevent it from following those tags.
+
+```sh
+cargo build --release --bin spectral-pruner-audit
+python3 research/probe_focus.py --model qwen --device mps \
+  --output-dir /tmp/focused-qwen
+python3 research/probe_focus.py --model smollm --device mps \
+  --output-dir /tmp/focused-smollm
+```
+
+Run sequentially with fresh output directories. Models, revisions, four-head
+selection, score directions, and numerical settings are fixed by the protocol.
+Each run saves clean head-selection observations, the frozen selection,
+per-head system/task/document attention masses, the two graph diagnostics,
+calibration policy, behavioral outcomes, timings, and a development decision.
+Identical prompts reuse an observation with `measurement_reused: true`; their
+timings are zeroed and their responses are regraded for each pairing.
+
+The source fixtures' `calibration` and `evaluation` names are retained for
+compatibility, but **both now contain previously inspected development data**.
+Neither this screen nor its passing gate can establish deployment safety.
+A candidate must pass on both models before a separate fresh study, and a graph
+score must outperform the focused-attention comparator to justify its cost.
+The [completed screen](results/2026-09-04-focused-signals.md) records the results
+and the decision to stop this bounded detector approach.
+
 ## Extract a graph
 
 ```sh

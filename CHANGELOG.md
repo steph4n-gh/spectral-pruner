@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a bounded focused-head development screen with renderer-owned task and
+  document spans, clean-only head selection, exactly two new scores, shared
+  generation-parity checks, and explicit advancement decisions. Retain the
+  negative utility finding and full observations. Exclude `research/**` from
+  the Cargo package while preserving the zero-dependency Rust kernel.
 - Add development-only verification of actual task hijacks and frozen study
   inputs for two task-capable model families. Add optional token-matched benign
   controls to behavioral evaluation and deduplicate repeated benign prompts in

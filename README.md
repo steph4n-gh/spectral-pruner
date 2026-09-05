@@ -14,7 +14,8 @@ connects to protected system nodes.
 Use it to investigate exported service, dependency, transaction, or constraint
 graphs. An audit reports structure; your application decides what to do with it.
 The library does not modify networks, remove packages, or execute containment.
-LLM attention analysis is a separate, experimental [research workflow](research/README.md).
+LLM attention analysis is a separate, experimental
+[research workflow](https://github.com/steph4n-gh/spectral-pruner/tree/main/research).
 
 [CLI reference](docs/cli.md) · [Mathematics](docs/mathematics.md) ·
 [Examples](examples/README.md) · [Contributing](CONTRIBUTING.md) · [Roadmap](ROADMAP.md)
@@ -133,22 +134,27 @@ The numerical oracle compares the Rust solver with NumPy and analytical spectra,
 including tiny and large weights, weak bridges, isolated nodes, and long paths.
 Rust tests and offline Python checks run in CI without downloading a model.
 
-The [August 27 attention pilot](research/results/2026-08-27-smollm2-pilot.md)
+The [August 27 attention pilot](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-08-27-smollm2-pilot.md)
 is historical evidence from the earlier implementation, not a validation of
 this release candidate. It reports both positive direct-injection results and
 weak indirect-injection results. It does not establish a production defense
 against prompt injection; those experiments need rerunning after solver changes.
 
 The LLM goal is measurable utility: identify successful task hijacks
-while preserving legitimate answers. The [paired behavioral harness](research/BEHAVIORAL_EVALUATION.md)
+while preserving legitimate answers. The [paired behavioral harness](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/BEHAVIORAL_EVALUATION.md)
 measures actual responses and counterfactual withholding with frozen thresholds.
 The [roadmap](ROADMAP.md) defines the evidence needed before building a live integration.
 
-The [verified-attack study](research/results/2026-09-04-verified-attacks.md) now
+The [verified-attack study](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-verified-attacks.md) now
 provides 144 confirmed evaluation hijacks across two task-capable model families.
 At a 1% calibration false-positive ceiling, the current aggregate
 connectivity signal withheld none. Stronger LLM claims require a better signal
 and fresh evaluation evidence.
+
+The [focused-head follow-up](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-focused-signals.md)
+tests task-aware measurements on that now-inspected corpus. Its graph candidate
+catches 16/54 Qwen hijacks but blocks 2/120 benign prompts, missing both utility
+targets. These candidates do not qualify for a live integration.
 
 ## Develop and verify
 

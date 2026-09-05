@@ -6,6 +6,9 @@ The published Rust crate has zero external dependencies. Model integrations,
 dataset readers, dense numerical oracles, and report generation belong under
 `research/`; they must not leak into `Cargo.toml`.
 
+The Cargo package excludes `research/**`, so model tooling and saved observations
+do not enlarge the library download. They remain available in the repository.
+
 The implementation deliberately stays small:
 
 ```text
@@ -123,7 +126,8 @@ host, release profile, iteration budget, tolerance, and converged-run count.
 6. Report mechanism-disabled ablations and cross-domain failures.
 7. Keep raw benchmark text and token strings out of label-only prediction artifacts.
 
-For response-level utility, use the [paired behavioral protocol](research/BEHAVIORAL_EVALUATION.md).
+For response-level utility, use the
+[paired behavioral protocol](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/BEHAVIORAL_EVALUATION.md).
 It scores exact generation prefixes, grades actual answers, and freezes thresholds
 before evaluation. Behavioral artifacts retain generated responses for grading
 review; these can quote input documents and must be reviewed before sharing.

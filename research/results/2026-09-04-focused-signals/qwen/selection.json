@@ -1,0 +1,28 @@
+{
+  "mode": "development_screen_on_previously_inspected_data",
+  "selected_heads": [
+    {
+      "layer": 22,
+      "head": 1,
+      "minimum_clean_task_mass": 0.1702899932861328
+    },
+    {
+      "layer": 22,
+      "head": 0,
+      "minimum_clean_task_mass": 0.16440486907958984
+    },
+    {
+      "layer": 23,
+      "head": 5,
+      "minimum_clean_task_mass": 0.16433393955230713
+    },
+    {
+      "layer": 23,
+      "head": 13,
+      "minimum_clean_task_mass": 0.16129112243652344
+    }
+  ],
+  "frozen_at_utc": "2026-09-05T01:06:48.371709+00:00",
+  "head_selection_sha256": "58c542b3e134ff823aee5969db38d76998a325ceac1696ac15c473be1650a987",
+  "selection_rule": "top four by minimum clean task mass; ties by layer/head"
+}

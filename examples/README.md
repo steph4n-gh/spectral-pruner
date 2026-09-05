@@ -19,7 +19,8 @@ the audit CLI, which exits **0** whenever it emits a verdict.
 | `zk_circuit_backdoor` | Synthetic constraint connectivity; does not validate proof soundness. |
 | `llm_steerage_guard` | Role-coded artificial attention; does not run a model. |
 
-For real model attention, use the [research extractor](../research/README.md).
+For real model attention, use the
+[research extractor](https://github.com/steph4n-gh/spectral-pruner/tree/main/research).
 For a graph exported by your own application, use the [audit CLI](../docs/cli.md).
 Keep a separate mapping from numeric node IDs to your application's entities.
 

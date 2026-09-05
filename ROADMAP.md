@@ -7,7 +7,7 @@ must earn its complexity through measured utility.
 
 ## 1. Measure behavior before building an integration
 
-The [paired behavioral harness](research/BEHAVIORAL_EVALUATION.md) generates
+The [paired behavioral harness](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/BEHAVIORAL_EVALUATION.md) generates
 responses to clean and poisoned versions of the same task. It distinguishes
 successful attacker objectives, resisted attacks, other task failures, and
 incomplete outputs. Signals come from the exact generation prefix, before any
@@ -16,7 +16,7 @@ output token. Thresholds are fixed on calibration cases before evaluation.
 The initial exact-answer fixture checks this machinery. It does not establish
 generalization, production safety, or a useful detection rate.
 
-The [verified-attack study](research/results/2026-09-04-verified-attacks.md) adds
+The [verified-attack study](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-verified-attacks.md) adds
 confirmed hijacks on two task-capable model families and benign length controls.
 This provides a behavioral regression corpus; it does not validate a detector.
 
@@ -41,6 +41,13 @@ In the verified study, the calibrated aggregate-connectivity rule withheld none
 of 144 confirmed evaluation hijacks. Investigate improved LLM signals on
 development data before building an integration. Reserve new evaluation cases
 for any tuned method; the published study is now available for inspection.
+
+The [focused-head development screen](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-focused-signals.md)
+maps the actual user task and compares four clean-selected attention heads with
+the original averages. On Qwen, focused connectivity withholds 16/54 hijacks
+and 2/120 benign prompts, missing both advancement targets. Stop this bounded
+prefill-detector approach. A different hypothesis needs a separately declared
+experiment; these candidates do not justify a fresh security study or integration.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
