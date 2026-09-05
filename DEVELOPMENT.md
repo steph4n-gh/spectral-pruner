@@ -121,7 +121,12 @@ host, release profile, iteration budget, tolerance, and converged-run count.
    connection, token count, and layer-trajectory baselines.
 5. Choose operating thresholds only on the calibration split.
 6. Report mechanism-disabled ablations and cross-domain failures.
-7. Keep raw benchmark text out of prediction artifacts.
+7. Keep raw benchmark text and token strings out of label-only prediction artifacts.
+
+For response-level utility, use the [paired behavioral protocol](research/BEHAVIORAL_EVALUATION.md).
+It scores exact generation prefixes, grades actual answers, and freezes thresholds
+before evaluation. Behavioral artifacts retain generated responses for grading
+review; these can quote input documents and must be reviewed before sharing.
 
 Do not present a simulated example, synthetic role label, or test-split-tuned
 threshold as real security validation.

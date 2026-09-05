@@ -1,52 +1,61 @@
 # Roadmap
 
-The near-term product is a small, inspectable graph-auditing library and CLI.
-Its value is measurable topology, explicit policy, and reproducible behavior.
-The attention-based detector remains a research application of that kernel.
+The ambition is to detect when untrusted context redirects an LLM, early enough
+to withhold a compromised response or proposed tool action. The foundation stays
+a small, inspectable, zero-dependency Rust graph kernel. New application code
+must earn its complexity through measured utility.
 
-## 1. Finish the 2.0 release candidate
+## 1. Measure behavior before building an integration
 
-- Keep library, CLI, documentation examples, Python checks, and numerical oracle
-  passing on the release candidate.
-- Validate installation and package contents from a clean checkout.
-- Review the breaking API changes and small-graph conventions in `MIGRATION.md`.
-- Publish a candidate only after its source commit, checks, migration notes, and
-  numerical limitations are reviewable together.
+The [paired behavioral harness](research/BEHAVIORAL_EVALUATION.md) generates
+responses to clean and poisoned versions of the same task. It distinguishes
+successful attacker objectives, resisted attacks, other task failures, and
+incomplete outputs. Signals come from the exact generation prefix, before any
+output token. Thresholds are fixed on calibration cases before evaluation.
 
-Done means a new user can install the intended version, reproduce the quick start,
-interpret every verdict, and handle an unsuccessful audit correctly.
+The initial exact-answer fixture checks this machinery. It does not establish
+generalization, production safety, or a useful detection rate.
 
-## 2. Demonstrate one real graph workflow end to end
+## 2. Establish a useful operating point
 
-Start with an exported weighted service or dependency graph. Preserve the mapping
-from graph IDs to domain objects, choose a protected interval explicitly, and
-review the resulting islands with a domain owner. Compare a normal snapshot with
-a documented structural change. Existing application examples are synthetic.
+Evaluate representative tasks with enough clean task capability to make hijacks
+meaningful, across at least two model families. Keep related documents and attack
+campaigns within one split. Add valid response-level graders where exact matching
+is insufficient. The existing label-only BIPIA adapter is not such a grader.
 
-Done means a reproducible input, explainable measurements, and a useful human
-decision. Add an integration only when this workflow establishes what it needs.
+Compare spectral connectivity with instruction-attention and length baselines
+on identical examples. Include matched-length attacks, benign discussion of
+attacks, actual task quality, uncertainty, convergence, and end-to-end cost.
+Recheck attack success after representation changes. Publish negative findings.
 
-## 3. Test indirect-injection generalization
+The proposed advancement target is **at least a 50% reduction in successful
+hijacks with no more than 1% of clean requests withheld**, on held-out tasks with
+enough independent examples to assess those rates. These are targets, not results.
+The August pilot's indirect-injection failure remains unresolved.
 
-Use paired clean and poisoned task contexts across at least two model families.
-Pin revisions and preserve pairs across calibration/evaluation splits. Measure
-actual attack success and benign task quality alongside detector TPR/FPR,
-confidence intervals, length baselines, layer/head stability, and total latency.
+Done means evidence that the spectral signal improves a useful operating point
+over simple baselines. If it cannot, reconsider the signal before adding a product.
 
-Calibrate on training data, hold the evaluation data untouched, and compare
-methods on identical examples. Representation mutations count as successful
-attacks only after functional success is rechecked. Publish negative findings.
+## 3. Prove a small integration
 
-Done means evidence showing whether spectral measurements improve a useful
-operating point on unseen tasks. The August pilot's indirect-injection failure
-is an open research result, not a solved defense.
+First measure counterfactual response withholding, as the harness already does.
+If the evidence gate passes, build one narrow host integration that can withhold
+a response or proposed action before release. Verify timing, failure handling,
+legitimate task quality, and the effect of the intervention itself.
 
-## 4. Optimize demonstrated bottlenecks
+Automatic context deletion or masking requires additional evidence that the
+detector localizes harmful content and that editing it preserves useful behavior.
+There is no commitment to rebuilding tau-gate, adding a daemon, or shipping a
+general-purpose LLM framework.
 
-Profile graph preparation, solver iterations, output allocation, and (for LLM
-experiments) model inference separately. Report convergence beside latency.
-Optimize only the limiting stage at an established workload and accuracy target.
-Preserve the zero-dependency Rust boundary and mathematical invariants.
+## 4. Keep the kernel ready to ship
 
-There is no commitment to a new solver, binding, service, or deployment framework
-until measurements or a concrete caller justify it.
+Maintain library, CLI, examples, Python checks, and numerical oracle coverage.
+Validate clean installation/package contents, breaking API changes, and the
+small-graph conventions in `MIGRATION.md`. Publish the 2.0 candidate only when its
+source commit, checks, migration notes, and numerical limits are reviewable together.
+
+Profile model attention collection, graph preparation, solver work, and output
+allocation separately. Optimize demonstrated bottlenecks while preserving the
+zero-dependency boundary and mathematical invariants. Bindings and other graph
+applications remain possible when a concrete caller justifies them.

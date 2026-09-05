@@ -58,7 +58,7 @@ def load_model(model_name: str, device: str = "auto", revision: str | None = Non
     return tokenizer, model, resolved_device
 
 
-def render_chat(tokenizer, system_text: str, user_text: str) -> str:
+def render_chat(tokenizer, system_text: str, user_text: str, *, generation_prompt: bool = False) -> str:
     messages = [
         {"role": "system", "content": system_text},
         {"role": "user", "content": user_text},
@@ -67,9 +67,10 @@ def render_chat(tokenizer, system_text: str, user_text: str) -> str:
         return tokenizer.apply_chat_template(
             messages,
             tokenize=False,
-            add_generation_prompt=False,
+            add_generation_prompt=generation_prompt,
         )
-    return f"System: {system_text}\nUser: {user_text}\n"
+    suffix = "Assistant:" if generation_prompt else ""
+    return f"System: {system_text}\nUser: {user_text}\n{suffix}"
 
 
 def _find_system_token_interval(tokenizer, prompt: str, system_text: str):
@@ -185,7 +186,17 @@ def extract_attention_bundle(
         use_cache=False,
         return_dict=True,
     )
-    attentions = outputs.attentions
+    return bundle_from_attentions(
+        tokenizer, prompt, encoded["input_ids"][0].tolist(), system_start, system_end,
+        outputs.attentions, layers=layers, top_k=top_k, min_weight=min_weight,
+    )
+
+
+def bundle_from_attentions(
+    tokenizer, prompt: str, input_ids: list[int], system_start: int, system_end: int,
+    attentions, *, layers: str, top_k: int, min_weight: float,
+) -> AttentionBundle:
+    """Convert a complete prefill attention snapshot with the existing graph transform."""
     if not attentions:
         raise RuntimeError(
             "model did not return attentions; verify that its architecture supports "
@@ -193,10 +204,14 @@ def extract_attention_bundle(
         )
     selected_layers = parse_layer_selection(layers, len(attentions))
 
-    input_ids = encoded["input_ids"][0].tolist()
     tokens = tuple(tokenizer.convert_ids_to_tokens(input_ids))
     prompt_hash = sha256(prompt.encode("utf-8")).hexdigest()
-    layer_means = [attentions[index][0].float().mean(dim=0) for index in selected_layers]
+    layer_means = []
+    for index in selected_layers:
+        attention = attentions[index]
+        if attention is None or tuple(attention.shape[-2:]) != (len(input_ids), len(input_ids)):
+            raise ValueError("attention snapshot must cover the exact full input prefix")
+        layer_means.append(attention[0].float().mean(dim=0))
 
     def build_graph(directed: torch.Tensor, layer_ids: tuple[int, ...]) -> AttentionGraph:
         affinity = (directed + directed.transpose(0, 1)) * 0.5

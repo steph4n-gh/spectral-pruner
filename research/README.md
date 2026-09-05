@@ -12,6 +12,16 @@ The target causal model must expose attention tensors through Transformers'
 eager attention implementation. `requirements-tested.txt` pins the exact pilot
 environment; use `--revision <commit>` to pin a Hugging Face model snapshot.
 
+## Measure actual model behavior
+
+The [paired behavioral harness](BEHAVIORAL_EVALUATION.md) is the next LLM research
+step. It generates clean and poisoned responses to the same task, grades exact
+attack objectives, freezes calibration thresholds before evaluation, and reports
+counterfactual response withholding alongside legitimate task quality. It compares
+spectral connectivity with instruction-attention and token-length baselines.
+Its checked-in synthetic fixture tests the workflow; it does not validate a defense.
+Behavioral outputs retain generated responses for grading review.
+
 ## Extract a graph
 
 ```sh
