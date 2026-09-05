@@ -96,6 +96,22 @@ class EvaluationTests(unittest.TestCase):
             distributed["signals"]["negative_algebraic_connectivity"],
         )
 
+    def test_policy_is_persisted_before_check_graphs_are_observed(self):
+        auditor = ROOT / "target/release/spectral-pruner-audit"
+        if not auditor.exists():
+            self.skipTest("release auditor is not built")
+        cases = dilution.build_cases()
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+
+            def observer(case, executable):
+                if case["split"] == "mechanism_check":
+                    self.assertTrue((output / "policy.json").is_file())
+                return dilution.observe_case(case, executable)
+
+            evaluation.run_audit(cases, output, auditor, 0.01, observer)
+            self.assertTrue((output / "summary.json").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

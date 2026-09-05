@@ -20,20 +20,31 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n", encoding="utf-8")
 
 
-def evaluate_rows(fit_rows, check_rows, max_fpr):
-    report = {"signals": {}}
-    labels = [row["label"] for row in check_rows]
+def fit_policy(rows, max_fpr):
+    policy = {"max_fpr": max_fpr, "signals": {}}
     for name in SIGNALS:
         threshold, fitted = choose_threshold(
-            fit_rows, lambda row, signal=name: row["signals"][signal], max_fpr
+            rows, lambda row, signal=name: row["signals"][signal], max_fpr
         )
-        checked = metrics(
-            labels,
-            [int(row["signals"][name] >= threshold) for row in check_rows],
-        )
-        report["signals"][name] = {
+        policy["signals"][name] = {
             "threshold": threshold if math.isfinite(threshold) else None,
             "fit": fitted,
+        }
+    return policy
+
+
+def score_policy(policy, rows):
+    report = {"signals": {}}
+    labels = [row["label"] for row in rows]
+    for name, fitted in policy["signals"].items():
+        threshold = fitted["threshold"]
+        checked = metrics(
+            labels,
+            [int(threshold is not None and row["signals"][name] >= threshold)
+             for row in rows],
+        )
+        report["signals"][name] = {
+            **fitted,
             "check": checked,
         }
     return report
@@ -84,6 +95,61 @@ def parse_args():
     return args
 
 
+def run_audit(cases, output_dir, auditor, max_fpr, observer=observe_case):
+    rows_by_split = {split: [] for split in SPLITS}
+    observations = output_dir / "observations.jsonl"
+    with observations.open("x", encoding="utf-8") as destination:
+        for case in cases:
+            if case["split"] != "mechanism_fit":
+                continue
+            row = observer(case, auditor)
+            rows_by_split["mechanism_fit"].append(row)
+            destination.write(json.dumps(row, allow_nan=False) + "\n")
+            destination.flush()
+
+        fit_rows = rows_by_split["mechanism_fit"]
+        naive_fit = [row for row in fit_rows if
+                     (row["semantic"], row["topology"]) in {
+                         ("authorized", "distributed"),
+                         ("unauthorized", "nested"),
+                     }]
+        policy = {
+            "schema_version": 1,
+            "selection_rule": "maximize fit recall at the declared FPR ceiling",
+            "naive_subset": fit_policy(naive_fit, max_fpr),
+            "collision_aware": fit_policy(fit_rows, max_fpr),
+        }
+        write_json(output_dir / "policy.json", policy)
+
+        for case in cases:
+            if case["split"] != "mechanism_check":
+                continue
+            row = observer(case, auditor)
+            rows_by_split["mechanism_check"].append(row)
+            destination.write(json.dumps(row, allow_nan=False) + "\n")
+            destination.flush()
+
+    check_rows = rows_by_split["mechanism_check"]
+    naive_check = [row for row in check_rows if
+                   (row["semantic"], row["topology"]) in {
+                       ("authorized", "distributed"),
+                       ("unauthorized", "nested"),
+                   }]
+    collisions = collision_groups(check_rows)
+    full = score_policy(policy["collision_aware"], check_rows)
+    summary = {
+        "schema_version": 1,
+        "fit_graphs": len(rows_by_split["mechanism_fit"]),
+        "check_graphs": len(check_rows),
+        "check_cross_label_graph_collisions": collisions,
+        "naive_subset": score_policy(policy["naive_subset"], naive_check),
+        "collision_aware": full,
+    }
+    write_json(output_dir / "summary.json", summary)
+    write_json(output_dir / "decision.json", decision(full, collisions))
+    return summary
+
+
 def main():
     args = parse_args()
     args.output_dir.mkdir(parents=True)
@@ -107,40 +173,12 @@ def main():
     }
     write_json(args.output_dir / "run.json", manifest)
     try:
-        rows_by_split = {split: [] for split in SPLITS}
+        run_audit(build_cases(), args.output_dir, args.auditor, args.max_fpr)
         observations = args.output_dir / "observations.jsonl"
-        with observations.open("x", encoding="utf-8") as destination:
-            for case in build_cases():
-                row = observe_case(case, args.auditor)
-                rows_by_split[case["split"]].append(row)
-                destination.write(json.dumps(row, allow_nan=False) + "\n")
-        naive = {
-            split: [row for row in rows if
-                    (row["semantic"], row["topology"]) in {
-                        ("authorized", "distributed"),
-                        ("unauthorized", "nested"),
-                    }]
-            for split, rows in rows_by_split.items()
-        }
-        full = evaluate_rows(
-            rows_by_split["mechanism_fit"], rows_by_split["mechanism_check"],
-            args.max_fpr,
-        )
-        naive_report = evaluate_rows(
-            naive["mechanism_fit"], naive["mechanism_check"], args.max_fpr,
-        )
-        collisions = collision_groups(rows_by_split["mechanism_check"])
-        summary = {
-            "schema_version": 1,
-            "fit_graphs": len(rows_by_split["mechanism_fit"]),
-            "check_graphs": len(rows_by_split["mechanism_check"]),
-            "check_cross_label_graph_collisions": collisions,
-            "naive_subset": naive_report,
-            "collision_aware": full,
-        }
-        write_json(args.output_dir / "summary.json", summary)
-        write_json(args.output_dir / "decision.json", decision(full, collisions))
         manifest["observations_sha256"] = sha256(observations.read_bytes()).hexdigest()
+        manifest["policy_sha256"] = sha256(
+            (args.output_dir / "policy.json").read_bytes()
+        ).hexdigest()
         manifest["summary_sha256"] = sha256(
             (args.output_dir / "summary.json").read_bytes()
         ).hexdigest()
