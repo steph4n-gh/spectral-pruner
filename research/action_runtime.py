@@ -1,6 +1,7 @@
 """Optional deterministic model runtime for proposed agent actions."""
 
 from hashlib import sha256
+from importlib.metadata import version
 import json
 import time
 
@@ -123,7 +124,6 @@ class ActionModel:
 
 class MlxActionModel:
     def __init__(self, args):
-        import mlx
         import mlx_lm
         from mlx_lm.sample_utils import make_sampler
 
@@ -142,7 +142,7 @@ class MlxActionModel:
                 (getattr(self.tokenizer, "chat_template", None) or "").encode()
             ).hexdigest(),
             "device": "metal",
-            "mlx_version": mlx.__version__,
+            "mlx_version": version("mlx"),
             "mlx_lm_version": mlx_lm.__version__,
             "generation_config": {
                 "do_sample": False,
