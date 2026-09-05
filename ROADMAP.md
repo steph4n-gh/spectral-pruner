@@ -49,6 +49,13 @@ and 2/120 benign prompts, missing both advancement targets. Stop this bounded
 prefill-detector approach. A different hypothesis needs a separately declared
 experiment; these candidates do not justify a fresh security study or integration.
 
+The next declared hypothesis moves the intervention to proposed agent actions.
+The [action authorization protocol](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/ACTION_AUTHORIZATION_STUDY.md)
+constructs provenance graphs from host-owned user authority, resource metadata,
+untrusted tool output, and exact structured action fields. It must beat simpler
+untrusted-field and missing-authority rules on two model families before any
+larger study or live tool integration.
+
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
 

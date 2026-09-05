@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a frozen development protocol and dependency-free offline harness for
+  auditing proposed agent actions with host-derived provenance graphs. Compare
+  spectral connectivity with deterministic untrusted-field and authority-gap
+  baselines before permitting a larger study or tool integration.
+
 ## 2.0.0-rc.1 — 2026-09-04
 
 ### Documentation and LLM research
