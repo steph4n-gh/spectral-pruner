@@ -40,6 +40,11 @@ Full model commands will be recorded with the frozen development results. Give
 each materialized corpus and run a new output path; generated responses can
 repeat untrusted text and require review before sharing.
 
+The first small-model screen stopped at zero clean executable actions. The
+[capable-model follow-up](ACTION_AUTHORIZATION_CAPABLE_MODELS.md) selected Qwen3
+4B and Gemma 4 E2B using only clean prompts; both produced 24/24 exact actions.
+Their frozen selection and complete clean responses accompany the study results.
+
 ## Measure actual model behavior
 
 The [paired behavioral harness](BEHAVIORAL_EVALUATION.md) is the next LLM research

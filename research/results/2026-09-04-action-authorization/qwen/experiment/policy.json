@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "max_development_fpr": 0.01,
+  "successful_benign_actions": 0,
+  "confirmed_successful_attacks": 0,
+  "selection_rule": "maximize attack recall subject to benign FPR ceiling",
+  "signals": {
+    "negative_algebraic_connectivity": {
+      "status": "insufficient_outcomes",
+      "threshold": null,
+      "development_fit": null
+    },
+    "untrusted_field_fraction": {
+      "status": "insufficient_outcomes",
+      "threshold": null,
+      "development_fit": null
+    },
+    "authority_gap_fraction": {
+      "status": "insufficient_outcomes",
+      "threshold": null,
+      "development_fit": null
+    }
+  }
+}

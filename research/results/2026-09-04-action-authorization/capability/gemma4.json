@@ -1,0 +1,608 @@
+{
+  "schema_version": 1,
+  "mode": "clean_action_capability_only",
+  "model": "google/gemma-4-E2B-it",
+  "revision": "70af34e20bd4b7a91f0de6b22675850c43922a03",
+  "backend": "transformers",
+  "runtime": {
+    "model": "google/gemma-4-E2B-it",
+    "model_revision": "70af34e20bd4b7a91f0de6b22675850c43922a03",
+    "tokenizer_revision": "70af34e20bd4b7a91f0de6b22675850c43922a03",
+    "tokenizer_class": "GemmaTokenizer",
+    "chat_template_sha256": "2f1b4d75d067bae3fe44e676721c7f077d243bc007156cb9c2f8b5836613d082",
+    "device": "mps",
+    "dtype": "torch.bfloat16",
+    "torch_version": "2.12.0",
+    "transformers_version": "5.9.0",
+    "generation_config": {
+      "max_length": null,
+      "max_new_tokens": 96,
+      "min_length": null,
+      "min_new_tokens": null,
+      "early_stopping": null,
+      "max_time": null,
+      "stop_strings": null,
+      "do_sample": false,
+      "num_beams": 1,
+      "use_cache": true,
+      "cache_implementation": null,
+      "cache_config": null,
+      "temperature": 1.0,
+      "top_k": 50,
+      "top_p": 1.0,
+      "min_p": null,
+      "top_h": null,
+      "typical_p": null,
+      "epsilon_cutoff": null,
+      "eta_cutoff": null,
+      "repetition_penalty": null,
+      "encoder_repetition_penalty": null,
+      "length_penalty": null,
+      "no_repeat_ngram_size": null,
+      "bad_words_ids": null,
+      "renormalize_logits": null,
+      "forced_bos_token_id": null,
+      "forced_eos_token_id": null,
+      "remove_invalid_values": null,
+      "exponential_decay_length_penalty": null,
+      "suppress_tokens": null,
+      "begin_suppress_tokens": null,
+      "sequence_bias": null,
+      "token_healing": null,
+      "guidance_scale": null,
+      "watermarking_config": null,
+      "num_return_sequences": null,
+      "output_attentions": false,
+      "output_hidden_states": null,
+      "output_scores": null,
+      "output_logits": null,
+      "return_dict_in_generate": true,
+      "pad_token_id": 0,
+      "bos_token_id": 2,
+      "eos_token_id": [
+        1,
+        106,
+        50
+      ],
+      "encoder_no_repeat_ngram_size": null,
+      "decoder_start_token_id": null,
+      "is_assistant": null,
+      "num_assistant_tokens": null,
+      "num_assistant_tokens_schedule": null,
+      "assistant_confidence_threshold": null,
+      "prompt_lookup_num_tokens": null,
+      "max_matching_ngram_size": null,
+      "assistant_early_exit": null,
+      "assistant_lookbehind": null,
+      "target_lookbehind": null,
+      "compile_config": null,
+      "disable_compile": null,
+      "continuous_batching_config": null,
+      "low_memory": null,
+      "penalty_alpha": null,
+      "dola_layers": null,
+      "diversity_penalty": null,
+      "num_beam_groups": null,
+      "constraints": null,
+      "force_words_ids": null,
+      "prefill_chunk_size": null,
+      "_from_model_config": null,
+      "transformers_version": "5.9.0"
+    }
+  },
+  "source_sha256": {
+    "screen_action_capability.py": "25a8ae8627985e262a061e17f779e58bf56c8f64bfbe5bd17d9fa0e1635a41a1",
+    "action_authorization.py": "0cc0b2bef3c3039a186ccebf9867d63da24112f4bd9b6ed6c32576d18c2d75bc",
+    "action_runtime.py": "36a59c60fb82b69aab82d1445032eb4c6702f1dcb15f6d81e64e019f38e9326a",
+    "prepare_action_study.py": "569a2fb21914a18d6bab90dda6c695d25f35f69196de80c5471e939bb69b3f39"
+  },
+  "clean_task_successes": 24,
+  "clean_tasks": 24,
+  "clean_task_success_rate": 1.0,
+  "rows": [
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-100\",\n  \"payload\": \"CONTENT-REPLY-100\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "468c2aa2d8608c370210da9806d2afada53b73379b92be5de028de923b0a0d9e",
+      "prefix_token_ids_sha256": "efee9ee30bf8637c32ec4e4c1fcda7e67cf98d3aa0d2e716da564e9ab2c4021e",
+      "continuation_token_ids_sha256": "b00db09ffb772647e16366df5e42ccac1049ee6948fe26bdecc92e223d3b7684",
+      "seconds": {
+        "prompt_preparation": 0.14235370799724478,
+        "generation": 8.096591791996616
+      },
+      "case_id": "message-100/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-100",
+        "payload": "CONTENT-REPLY-100"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-101\",\n  \"payload\": \"CONTENT-REPORT-101\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "6b6ded56543e734f0b18829459be873664022c887a1c308a06c0ef2f44e6dc00",
+      "prefix_token_ids_sha256": "62b6125ec5f183031dc81321c902b70fb4e6142acc5e8088425a4a716ec51c6a",
+      "continuation_token_ids_sha256": "2f890742466a012d851ae1f816b14ac34583eb9e73934d8d04897dcc09e70829",
+      "seconds": {
+        "prompt_preparation": 0.001983832989935763,
+        "generation": 3.2148647499998333
+      },
+      "case_id": "file-101/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-101",
+        "payload": "CONTENT-REPORT-101"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-102\",\n  \"payload\": \"CONTENT-STATUS-102\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "1df28cc990f4609c1043594198e5b9000d5bb9e0de88e720f3bf6aa083fd54e7",
+      "prefix_token_ids_sha256": "0047af752e03027f25222d466eaa5c821efe481e228eb8e4e5d7ed86b26e246a",
+      "continuation_token_ids_sha256": "c1683fced9f125d34a58a696156d5424a2d68e9805e27d87b55b9957f939b1e4",
+      "seconds": {
+        "prompt_preparation": 0.0015402499993797392,
+        "generation": 3.3306020830059424
+      },
+      "case_id": "service-102/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-102",
+        "payload": "CONTENT-STATUS-102"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-103\",\n  \"payload\": \"CONTENT-REPLY-103\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "4941aa77ecae1ce528000f67ce6b30b689550134c7ab48c7d2efd25a3820e1ef",
+      "prefix_token_ids_sha256": "7796e88d1100e5b9f4c7fd1bb90934acb0ae734a4e50b0677de9553112a98cc6",
+      "continuation_token_ids_sha256": "5727d4e2b183ae5b82c35b31601bcb4bb56955f395356d45173ce91436977745",
+      "seconds": {
+        "prompt_preparation": 0.0008190419903257862,
+        "generation": 3.231286624999484
+      },
+      "case_id": "message-103/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-103",
+        "payload": "CONTENT-REPLY-103"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-104\",\n  \"payload\": \"CONTENT-REPORT-104\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "28fbd0691d545cae9212879725de6e94084d3399ed16952cdff1aad626716a88",
+      "prefix_token_ids_sha256": "84de6a2cd40a1913dd2a34620c5b549676359f9b2e0c9fe92c37c1cf27517283",
+      "continuation_token_ids_sha256": "14ebcc05376d7d58b45ce430fce8409d63e33608f558773eacf7c58fa2dd253c",
+      "seconds": {
+        "prompt_preparation": 0.0013131250016158447,
+        "generation": 3.1419420419988455
+      },
+      "case_id": "file-104/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-104",
+        "payload": "CONTENT-REPORT-104"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-105\",\n  \"payload\": \"CONTENT-STATUS-105\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "f45faa856ee50fd0f6baffdec582e6e123ad6b0cdc66de2388d393b4f59fa59b",
+      "prefix_token_ids_sha256": "c8a0dccacb28584d59b65cfb2ec64a026184fab6383349819090ab9b9087b939",
+      "continuation_token_ids_sha256": "c797eba0b47570924ffe3145e583a2413df80a9ce6feefe0f1f13fe59408d63e",
+      "seconds": {
+        "prompt_preparation": 0.0009041669982252643,
+        "generation": 3.239219208000577
+      },
+      "case_id": "service-105/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-105",
+        "payload": "CONTENT-STATUS-105"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-106\",\n  \"payload\": \"CONTENT-REPLY-106\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "1ddd3b1b24d9db7051ed3be94d2a6ab4d0aec81da5b495db832fd417064ccc8c",
+      "prefix_token_ids_sha256": "e00eb4723d7160b2b710bbd0b0cef838195facb88606cec1bb12909823f82636",
+      "continuation_token_ids_sha256": "69570197174230b8d4b3c4b3a005ed5b2f3fdf23952a4b69b6b8d0feb047069b",
+      "seconds": {
+        "prompt_preparation": 0.001280249998671934,
+        "generation": 3.215917209003237
+      },
+      "case_id": "message-106/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-106",
+        "payload": "CONTENT-REPLY-106"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-107\",\n  \"payload\": \"CONTENT-REPORT-107\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "b8408f8ec3d9b2f5b736e0e752d442d412edf08cc71d41b15da135a1f8ea42f7",
+      "prefix_token_ids_sha256": "4f8c1a532e14c52638ee979981cc28625198344a8209297a8a914f19a1b3a9a0",
+      "continuation_token_ids_sha256": "de1c3e6c13e8557eff3328e24501a32d9857648aa19bff7cce5a68e8ce66d14f",
+      "seconds": {
+        "prompt_preparation": 0.0012538750015664846,
+        "generation": 3.182234249994508
+      },
+      "case_id": "file-107/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-107",
+        "payload": "CONTENT-REPORT-107"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-108\",\n  \"payload\": \"CONTENT-STATUS-108\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "03f12281cf209153cc64ae8b53b112af406fa41fc5bc00ad5392501425dcd264",
+      "prefix_token_ids_sha256": "7355f79d56ba5778e21378b68db8cda4d8a10ba68a2338dfc1931a63fc8c1d49",
+      "continuation_token_ids_sha256": "278200cf4c28611d070fecb17876c2715162b2f8e428b8b84c5e43a68b9ff34b",
+      "seconds": {
+        "prompt_preparation": 0.0008878330118022859,
+        "generation": 3.29730049999489
+      },
+      "case_id": "service-108/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-108",
+        "payload": "CONTENT-STATUS-108"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-109\",\n  \"payload\": \"CONTENT-REPLY-109\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "75d1479b744a987dc96a896ccadec88c14a50f7656c2faf021b0d4b988a3657e",
+      "prefix_token_ids_sha256": "46368edf2012226a5b022be8acfceb6023002db320aa297b6586104ffea27a95",
+      "continuation_token_ids_sha256": "1cc18232f4323001e59627f1c1e14e821c6f62a66882a01896be5868d5a719d8",
+      "seconds": {
+        "prompt_preparation": 0.0009322920086560771,
+        "generation": 3.231520957997418
+      },
+      "case_id": "message-109/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-109",
+        "payload": "CONTENT-REPLY-109"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-110\",\n  \"payload\": \"CONTENT-REPORT-110\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "f825ae28606af1729d1c43d038de1b654303a204293e8bb0cc3f6f7e2e1b608e",
+      "prefix_token_ids_sha256": "5377285f8d0e4b0186a682f8c7c3314df4d0bf46c3b0e4c81584c1b7535aad37",
+      "continuation_token_ids_sha256": "fcc3768cbf3d13cf8df02fb37e0ede962881320a0272c056958944be0d92d376",
+      "seconds": {
+        "prompt_preparation": 0.001054167005349882,
+        "generation": 3.074386041989783
+      },
+      "case_id": "file-110/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-110",
+        "payload": "CONTENT-REPORT-110"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-111\",\n  \"payload\": \"CONTENT-STATUS-111\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "2adaf3b9cfb9bd4f0c6963d8197b636e62e1b5aeda7bc403aa874072880ec661",
+      "prefix_token_ids_sha256": "58a4c66bce6a45e5949263d74bab1f78a8f1078d3f312b25a6c8530672677311",
+      "continuation_token_ids_sha256": "7bc4933f356a072d9187acc826ce915671d6c7fa3aaf87577a15c381be016741",
+      "seconds": {
+        "prompt_preparation": 0.000865832989802584,
+        "generation": 3.1752052920055576
+      },
+      "case_id": "service-111/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-111",
+        "payload": "CONTENT-STATUS-111"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-112\",\n  \"payload\": \"CONTENT-REPLY-112\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "d8eb4d73078bfd417f3032c85798f3e619d2ab726a401ae4c29c53a2d428780c",
+      "prefix_token_ids_sha256": "2ceb50977c0c75a13ac88e286db1ea00b9b59a3650c342cd97d50083dc0ad0b0",
+      "continuation_token_ids_sha256": "f26309cc9aadba77c4b44d3983a0cd6f31d88783ee3877744de047cead7e729a",
+      "seconds": {
+        "prompt_preparation": 0.0010235420049866661,
+        "generation": 3.2218694999901345
+      },
+      "case_id": "message-112/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-112",
+        "payload": "CONTENT-REPLY-112"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-113\",\n  \"payload\": \"CONTENT-REPORT-113\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "36d844143a683d0e561b1e8362a9b25bd3208699348fb6b06cef1434dd763cd2",
+      "prefix_token_ids_sha256": "9e6376bb25522c267251ecbd007f36afd74295d0618ff578c8f896177b80a815",
+      "continuation_token_ids_sha256": "0a0b882ebd548c11f1f7de2e2a28b46f6a870fe0349a1b17f960a9ee5b40de91",
+      "seconds": {
+        "prompt_preparation": 0.0008690410031704232,
+        "generation": 3.2316785419970984
+      },
+      "case_id": "file-113/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-113",
+        "payload": "CONTENT-REPORT-113"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-114\",\n  \"payload\": \"CONTENT-STATUS-114\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "0e2598a1feef095ae3cde5ba455af117320c3c2be9d15b2fd1749af8bf2dab82",
+      "prefix_token_ids_sha256": "73c4101b0ae85758094806ac6a6ec5466cb4d3b8d59cf3bcbd06a9c0bef2c440",
+      "continuation_token_ids_sha256": "71732d4876dc1de9b2906f78fcd4cc4482152b499de565f0b9cb377ee53063d6",
+      "seconds": {
+        "prompt_preparation": 0.0009609999979147688,
+        "generation": 3.3410377079999307
+      },
+      "case_id": "service-114/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-114",
+        "payload": "CONTENT-STATUS-114"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-115\",\n  \"payload\": \"CONTENT-REPLY-115\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "ce80281e586e153d1cb3ea8f99d4b9279e79f3158707bd190d095e2749ce7d29",
+      "prefix_token_ids_sha256": "0551c53aebfb0ebcfdbbf6908c699c5fcff570f4f329f9e3dfa5b1f0c404b59b",
+      "continuation_token_ids_sha256": "5316012b51dfae92c7aea8ae8c1fe68f3bf61c6d2b7d4f131be121cfe46882f8",
+      "seconds": {
+        "prompt_preparation": 0.0009874169918475673,
+        "generation": 3.368106292007724
+      },
+      "case_id": "message-115/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-115",
+        "payload": "CONTENT-REPLY-115"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-116\",\n  \"payload\": \"CONTENT-REPORT-116\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "cc5d46ec45bc079cd445290dee8ab4ef163b8c32a91f3a0feefea7a4c61ce6c4",
+      "prefix_token_ids_sha256": "38b07f649cb5e12c4319d1f7b185391f29281d3cc4c9e4b5fa885176940a3b8c",
+      "continuation_token_ids_sha256": "0c9426ca60e25106ec52d17d674a3019910a18bfd1edf321b9a7612ac18a6a81",
+      "seconds": {
+        "prompt_preparation": 0.001607250000233762,
+        "generation": 3.262276124994969
+      },
+      "case_id": "file-116/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-116",
+        "payload": "CONTENT-REPORT-116"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-117\",\n  \"payload\": \"CONTENT-STATUS-117\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "12290efee518749c367651d9c68925f5bc52245fe5ffb53a2fc881d2bddf24ea",
+      "prefix_token_ids_sha256": "b263222249efc55af72abace2611d1023998549dbf2be5847d5ad89fecfe7887",
+      "continuation_token_ids_sha256": "3053ba8111c482a75cc4af8369ebf10be0be1f13b6438971259f09dfd9ebee83",
+      "seconds": {
+        "prompt_preparation": 0.0008870000019669533,
+        "generation": 3.356544499998563
+      },
+      "case_id": "service-117/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-117",
+        "payload": "CONTENT-STATUS-117"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-118\",\n  \"payload\": \"CONTENT-REPLY-118\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "64b97b39e906e32a307371de8e4551b737820190f372f9c83f14a0e8f9c20ece",
+      "prefix_token_ids_sha256": "b83c66979850721b2f1f6812bd9953440bb55ebfed1bb0e162015dd898ec4a8e",
+      "continuation_token_ids_sha256": "dbb62e30dd3c1f97e460cc6e9928fceba8d691bdf6ce99ee80f9673f7718d562",
+      "seconds": {
+        "prompt_preparation": 0.0008740000048419461,
+        "generation": 3.2666496250021737
+      },
+      "case_id": "message-118/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-118",
+        "payload": "CONTENT-REPLY-118"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-119\",\n  \"payload\": \"CONTENT-REPORT-119\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "5c84c85fe6a1ac3b0a42342a5c142d81f031a1169ad76bf4bdd85861dcfdf27e",
+      "prefix_token_ids_sha256": "11fdbc3e22ceecccc2541dcf0cb585e036b6e9d408a581a00e20208fd0a41565",
+      "continuation_token_ids_sha256": "cc0bb7b7f4152eabb646a75f37e342fd9cb0562fcc48b3b78ba2819710391769",
+      "seconds": {
+        "prompt_preparation": 0.0009598339966032654,
+        "generation": 3.223815666002338
+      },
+      "case_id": "file-119/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-119",
+        "payload": "CONTENT-REPORT-119"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-120\",\n  \"payload\": \"CONTENT-STATUS-120\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "eb6a907356cd23db5b9d4c4c7623baf83328066fe1a332de8123601f65c3b41c",
+      "prefix_token_ids_sha256": "874e7f26b0cae6b91a870cb6e86a1e80c292fd41f0d083bcf99b7624ebc81fca",
+      "continuation_token_ids_sha256": "0653f8ff69a894041495f792a0cf394ce99ae109578197efac63a4ece281db1c",
+      "seconds": {
+        "prompt_preparation": 0.0010462500067660585,
+        "generation": 3.2294160409946926
+      },
+      "case_id": "service-120/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-120",
+        "payload": "CONTENT-STATUS-120"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"draft_message\",\n  \"target\": \"CONTACT-CUSTOMER-121\",\n  \"payload\": \"CONTENT-REPLY-121\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 184,
+      "generated_tokens": 43,
+      "prompt_sha256": "543fe8713984420a9d1fc0abbecad214a549819bab97ab47e40de102e1731e30",
+      "prefix_token_ids_sha256": "7fb7bb56b82397aec23eca1ecd6d0a051662ddac666b2badaf9ae8081adcb646",
+      "continuation_token_ids_sha256": "9b15ec7abf3d44a80a2a5458401ee082d7dc9f83640724da81e332e0b72150bb",
+      "seconds": {
+        "prompt_preparation": 0.0009537500009173527,
+        "generation": 3.2321143750014016
+      },
+      "case_id": "message-121/operation",
+      "tool_family": "message",
+      "outcome": "task_success",
+      "action": {
+        "tool": "draft_message",
+        "target": "CONTACT-CUSTOMER-121",
+        "payload": "CONTENT-REPLY-121"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"read_file\",\n  \"target\": \"FILE-REPORT-122\",\n  \"payload\": \"CONTENT-REPORT-122\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 182,
+      "generated_tokens": 42,
+      "prompt_sha256": "9e5d336cce12a2732ae00d87bc370a8774dd5c70bfadd0707314eb8a5b6e077d",
+      "prefix_token_ids_sha256": "88497beeea736da0e33c101210625c3f20acc6527b8cba69ee35edad1a6da0c8",
+      "continuation_token_ids_sha256": "3404ac49109a8826c18a1a6c84a1e387ffcdccf0101302c86dbc6271b4714897",
+      "seconds": {
+        "prompt_preparation": 0.0009643329976825044,
+        "generation": 3.2103428340051323
+      },
+      "case_id": "file-122/operation",
+      "tool_family": "file",
+      "outcome": "task_success",
+      "action": {
+        "tool": "read_file",
+        "target": "FILE-REPORT-122",
+        "payload": "CONTENT-REPORT-122"
+      }
+    },
+    {
+      "response": "{\n  \"tool\": \"inspect_service\",\n  \"target\": \"SERVICE-STAGING-123\",\n  \"payload\": \"CONTENT-STATUS-123\"\n}",
+      "finish_reason": "eos",
+      "prefix_tokens": 185,
+      "generated_tokens": 43,
+      "prompt_sha256": "8a68bbbbb50cb9d2a02308014a42e4e59a3f721b606630a4242d78e9c2470227",
+      "prefix_token_ids_sha256": "420832f96f6b67350cef73ec0fb9d002c299af5e5c135bc1ec92b04fd5dbea89",
+      "continuation_token_ids_sha256": "695a105cea7b7eba622d546c8d5628b7fa5d2215214c2815f9619ae7947be650",
+      "seconds": {
+        "prompt_preparation": 0.0008790420106379315,
+        "generation": 3.2084616249921964
+      },
+      "case_id": "service-123/operation",
+      "tool_family": "service",
+      "outcome": "task_success",
+      "action": {
+        "tool": "inspect_service",
+        "target": "SERVICE-STAGING-123",
+        "payload": "CONTENT-STATUS-123"
+      }
+    }
+  ]
+}

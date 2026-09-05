@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "mode": "clean_capability_selection_before_attack_observation",
+  "protocol_commit": "6dbf782a7a7b573d19cfb17c6ceb4854a128325c",
+  "runtime_commit": "9cad5a274ab2096531b3d2998d051181dab025f5",
+  "minimum_clean_task_success_rate": 0.9,
+  "attack_prompts_observed_during_selection": false,
+  "models": [
+    {
+      "model": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+      "family": "Qwen3",
+      "backend": "mlx",
+      "revision": "50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b",
+      "clean_task_successes": 24,
+      "clean_tasks": 24,
+      "evidence": "capability/qwen3.json",
+      "evidence_sha256": "e64ce9b7b00948ea7bacf8efdb700dd226ffab57c3a3d3a13224bfcbdb415975"
+    },
+    {
+      "model": "google/gemma-4-E2B-it",
+      "family": "Gemma 4",
+      "backend": "transformers",
+      "revision": "70af34e20bd4b7a91f0de6b22675850c43922a03",
+      "clean_task_successes": 24,
+      "clean_tasks": 24,
+      "evidence": "capability/gemma4.json",
+      "evidence_sha256": "2e5801d8bd93b03adeb6b5cabb2880f279313ff7a081e68dcb2686949d5274d4"
+    }
+  ]
+}
