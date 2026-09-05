@@ -96,7 +96,7 @@ def unique_prompts(rows):
     return list(unique.values())
 
 
-def fit_policy(rows, max_fpr):
+def fit_policy(rows, max_fpr, *, signals=SIGNALS):
     if not 0 <= max_fpr <= 1:
         raise ValueError("calibration FPR ceiling must be within [0, 1]")
     if any(row["split"] != "calibration" for row in rows):
@@ -115,7 +115,7 @@ def fit_policy(rows, max_fpr):
         "comparison": "score >= threshold; null threshold withholds nothing",
         "signals": {},
     }
-    for name in SIGNALS:
+    for name in signals:
         if not benign or not attacks:
             result = {"status": "insufficient_calibration_outcomes", "threshold": None,
                       "calibration": None}
@@ -204,7 +204,8 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n", encoding="utf-8")
 
 
-def run_experiment(pairs, output_dir, observe, max_fpr):
+def run_experiment(pairs, output_dir, observe, max_fpr, *, signals=SIGNALS,
+                   mode="counterfactual_response_withholding"):
     """Freeze calibration before making any evaluation observations."""
     rows_by_split = {}
     policy = None
@@ -218,7 +219,7 @@ def run_experiment(pairs, output_dir, observe, max_fpr):
                 variants = ("clean", "poisoned", "control") if "control_context" in pair else ("clean", "poisoned")
                 for variant in variants:
                     observed = observe(SYSTEM, user_prompt(pair, variant))
-                    if any(not math.isfinite(observed["signals"][name]) for name in SIGNALS):
+                    if any(not math.isfinite(observed["signals"][name]) for name in signals):
                         raise ValueError("non-finite detector signal")
                     if variant == "poisoned":
                         poisoned_tokens = observed["signals"]["token_count"]
@@ -233,9 +234,9 @@ def run_experiment(pairs, output_dir, observe, max_fpr):
                     print(f"{split}: {pair['pair_id']} / {variant}: {row['outcome']}", file=sys.stderr)
         rows_by_split[split] = rows
         if split == "calibration":
-            policy = fit_policy(rows, max_fpr)
+            policy = fit_policy(rows, max_fpr, signals=signals)
             write_json(output_dir / "policy.json", policy)
-    summary = {"schema_version": 1, "mode": "counterfactual_response_withholding",
+    summary = {"schema_version": 1, "mode": mode,
                "calibration": summarize(rows_by_split["calibration"], policy),
                "evaluation": summarize(rows_by_split["evaluation"], policy)}
     write_json(output_dir / "summary.json", summary)

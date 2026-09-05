@@ -204,8 +204,6 @@ def bundle_from_attentions(
         )
     selected_layers = parse_layer_selection(layers, len(attentions))
 
-    tokens = tuple(tokenizer.convert_ids_to_tokens(input_ids))
-    prompt_hash = sha256(prompt.encode("utf-8")).hexdigest()
     layer_means = []
     for index in selected_layers:
         attention = attentions[index]
@@ -214,18 +212,9 @@ def bundle_from_attentions(
         layer_means.append(attention[0].float().mean(dim=0))
 
     def build_graph(directed: torch.Tensor, layer_ids: tuple[int, ...]) -> AttentionGraph:
-        affinity = (directed + directed.transpose(0, 1)) * 0.5
-        affinity.fill_diagonal_(0.0)
-        return AttentionGraph(
-            edges=sparsify_affinity(affinity.cpu(), top_k, min_weight),
-            node_count=len(input_ids),
-            system_start=system_start,
-            system_end=system_end,
-            tokens=tokens,
-            prompt_sha256=prompt_hash,
-            selected_layers=layer_ids,
-            top_k=top_k,
-            min_weight=min_weight,
+        return graph_from_directed(
+            tokenizer, prompt, input_ids, system_start, system_end, directed,
+            layer_ids=layer_ids, top_k=top_k, min_weight=min_weight,
         )
 
     layer_graphs = tuple(
@@ -234,6 +223,24 @@ def bundle_from_attentions(
     )
     aggregate = build_graph(torch.stack(layer_means).mean(dim=0), selected_layers)
     return AttentionBundle(aggregate=aggregate, layers=layer_graphs)
+
+
+def graph_from_directed(tokenizer, prompt, input_ids, system_start, system_end,
+                        directed, *, layer_ids, top_k, min_weight):
+    """Apply the same full-token transform to an explicitly chosen head average."""
+    if tuple(directed.shape) != (len(input_ids), len(input_ids)):
+        raise ValueError("directed attention must cover every input token")
+    if not bool(torch.isfinite(directed).all()) or bool((directed < 0).any()):
+        raise ValueError("attention weights must be finite and nonnegative")
+    affinity = (directed + directed.transpose(0, 1)) * 0.5
+    affinity.fill_diagonal_(0.0)
+    return AttentionGraph(
+        edges=sparsify_affinity(affinity.cpu(), top_k, min_weight),
+        node_count=len(input_ids), system_start=system_start, system_end=system_end,
+        tokens=tuple(tokenizer.convert_ids_to_tokens(input_ids)),
+        prompt_sha256=sha256(prompt.encode("utf-8")).hexdigest(),
+        selected_layers=layer_ids, top_k=top_k, min_weight=min_weight,
+    )
 
 
 def extract_attention_graph(*args, **kwargs) -> AttentionGraph:
