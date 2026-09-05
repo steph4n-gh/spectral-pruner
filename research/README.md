@@ -22,6 +22,13 @@ spectral connectivity with instruction-attention and token-length baselines.
 Its checked-in synthetic fixture tests the workflow; it does not validate a defense.
 Behavioral outputs retain generated responses for grading review.
 
+The [verified-attack study](VERIFIED_ATTACK_STUDY.md) adds development-only attack
+screening and fresh task instances with benign controls matched to poisoned
+inputs by token count. Repeated benign prompts are deduplicated in calibration
+and false-positive summaries. The Rust kernel remains unchanged.
+The [completed results](results/2026-09-04-verified-attacks.md) report confirmed
+attacks and a negative finding for the current aggregate-connectivity signal.
+
 ## Extract a graph
 
 ```sh

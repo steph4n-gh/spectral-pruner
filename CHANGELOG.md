@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add development-only verification of actual task hijacks and frozen study
+  inputs for two task-capable model families. Add optional token-matched benign
+  controls to behavioral evaluation and deduplicate repeated benign prompts in
+  calibration/quality metrics. Keep all attack attempts and task failures.
 - Add paired exact-answer LLM behavioral evaluation, prefill-only spectral and
   attention/length signals, frozen calibration, counterfactual withholding,
   explicit task failures/inconclusive outcomes, and offline experiment tests.
