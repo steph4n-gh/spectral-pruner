@@ -15,6 +15,11 @@
   topology baselines and explicit authorized/unauthorized graph collisions.
   Require this cheap feasibility screen to pass before acquiring more model
   attacks or adding an action-gate API.
+- Record the authority-dilution no-go result. Linear bottleneck and path rules
+  outperform connectivity on the naive subset, and opposite authorization
+  meanings collide on identical graphs in the complete screen. Stop the
+  single-action gate and require a representation audit before any trajectory
+  goal-drift study.
 
 ## 2.0.0-rc.1 — 2026-09-04
 

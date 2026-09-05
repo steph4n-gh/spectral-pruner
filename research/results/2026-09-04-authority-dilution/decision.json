@@ -1,0 +1,8 @@
+{
+  "advance_to_model_acquisition": false,
+  "reasons": [
+    "authorized and unauthorized cases share graph fingerprints",
+    "spectral check recall below 50%",
+    "spectral signal did not beat every deterministic baseline"
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "selection_rule": "maximize fit recall at the declared FPR ceiling",
+  "naive_subset": {
+    "max_fpr": 0.01,
+    "signals": {
+      "negative_algebraic_connectivity": {
+        "threshold": -0.3759676595808311,
+        "fit": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 2,
+          "true_positive_rate": 0.6666666666666666,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.8333333333333334
+        }
+      },
+      "field_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "any_untrusted_contributor": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "untrusted_field_source_fraction": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_bottleneck": {
+        "threshold": 0.6666666666666667,
+        "fit": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        }
+      },
+      "normalized_max_authority_distance": {
+        "threshold": 0.3076923076923077,
+        "fit": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        }
+      }
+    }
+  },
+  "collision_aware": {
+    "max_fpr": 0.01,
+    "signals": {
+      "negative_algebraic_connectivity": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "field_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "any_untrusted_contributor": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "untrusted_field_source_fraction": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_bottleneck": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "normalized_max_authority_distance": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      }
+    }
+  }
+}
