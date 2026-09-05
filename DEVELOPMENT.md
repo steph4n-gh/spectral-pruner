@@ -6,6 +6,9 @@ The published Rust crate has zero external dependencies. Model integrations,
 dataset readers, dense numerical oracles, and report generation belong under
 `research/`; they must not leak into `Cargo.toml`.
 
+The Cargo package excludes `research/**`, so model tooling and saved observations
+do not enlarge the library download. They remain available in the repository.
+
 The implementation deliberately stays small:
 
 ```text

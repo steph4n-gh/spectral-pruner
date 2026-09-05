@@ -150,6 +150,11 @@ At a 1% calibration false-positive ceiling, the current aggregate
 connectivity signal withheld none. Stronger LLM claims require a better signal
 and fresh evaluation evidence.
 
+The [focused-head follow-up](research/results/2026-09-04-focused-signals.md)
+tests task-aware measurements on that now-inspected corpus. Its graph candidate
+catches 16/54 Qwen hijacks but blocks 2/120 benign prompts, missing both utility
+targets. These candidates do not qualify for a live integration.
+
 ## Develop and verify
 
 ```sh

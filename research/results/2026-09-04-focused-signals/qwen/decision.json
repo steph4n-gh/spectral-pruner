@@ -1,0 +1,17 @@
+{
+  "mode": "development_screen_on_previously_inspected_data",
+  "clean_capability_passed": true,
+  "candidates": {
+    "negative_focused_attention": {
+      "utility_target_passed": false,
+      "additional_graph_value_passed": true,
+      "advance_on_this_model": false
+    },
+    "negative_focused_connectivity": {
+      "utility_target_passed": false,
+      "additional_graph_value_passed": true,
+      "advance_on_this_model": false
+    }
+  },
+  "next_step": "A candidate must pass on both declared models before any fresh study."
+}

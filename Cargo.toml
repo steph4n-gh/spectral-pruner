@@ -10,6 +10,8 @@ documentation = "https://docs.rs/spectral-pruner"
 readme = "README.md"
 keywords = ["spectral", "graph", "fiedler", "topology", "auditing"]
 categories = ["algorithms", "science", "command-line-utilities"]
+# Keep model tooling and experimental observations in the repository.
+exclude = ["research/**"]
 
 [dependencies]
 # Absolute Zero Dependencies mandated.

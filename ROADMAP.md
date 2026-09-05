@@ -42,6 +42,13 @@ of 144 confirmed evaluation hijacks. Investigate improved LLM signals on
 development data before building an integration. Reserve new evaluation cases
 for any tuned method; the published study is now available for inspection.
 
+The [focused-head development screen](research/results/2026-09-04-focused-signals.md)
+maps the actual user task and compares four clean-selected attention heads with
+the original averages. On Qwen, focused connectivity withholds 16/54 hijacks
+and 2/120 benign prompts, missing both advancement targets. Stop this bounded
+prefill-detector approach. A different hypothesis needs a separately declared
+experiment; these candidates do not justify a fresh security study or integration.
+
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
 
