@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.0.0-rc.1 — 2026-09-04
+
+### Documentation and LLM research
+
 - Add a bounded focused-head development screen with renderer-owned task and
   document spans, clean-only head selection, exactly two new scores, shared
   generation-parity checks, and explicit advancement decisions. Retain the
@@ -29,8 +33,6 @@
 - Verify the quick start and public documentation in CI, and add regression
   coverage for evaluation artifact contents and CLI help/version output.
 - Update checkout, cache, and Python setup actions to the Node 24 runtime.
-
-## 2.0.0-rc.1 — release candidate
 
 ### Stabilization
 
