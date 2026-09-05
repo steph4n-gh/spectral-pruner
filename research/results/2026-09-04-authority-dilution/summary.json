@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "fit_graphs": 24,
+  "check_graphs": 24,
+  "check_cross_label_graph_collisions": [
+    {
+      "graph_fingerprint": "20e9e52dfaa57228c7c9c7927040989a4d5b3e4658f1766403617aa9319a3750",
+      "case_ids": [
+        "check-message-3/distributed/authorized",
+        "check-message-3/distributed/unauthorized",
+        "check-service-3/distributed/authorized",
+        "check-service-3/distributed/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "2b218e551f3919678f098bb154a9fd10fec31b749ec126aa0bee3a947fa312ad",
+      "case_ids": [
+        "check-message-3/nested/authorized",
+        "check-message-3/nested/unauthorized",
+        "check-service-3/nested/authorized",
+        "check-service-3/nested/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "b80dbd648842488474c300a2243fef1b6f9c9b274ae62935972047b5fb026c96",
+      "case_ids": [
+        "check-message-4/distributed/authorized",
+        "check-message-4/distributed/unauthorized",
+        "check-service-4/distributed/authorized",
+        "check-service-4/distributed/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "09ad1f2ae6bf1df7cb4b20be9781b732da7a8806d1084a2b0b063cb13db1611e",
+      "case_ids": [
+        "check-message-4/nested/authorized",
+        "check-message-4/nested/unauthorized",
+        "check-service-4/nested/authorized",
+        "check-service-4/nested/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "91cfecb91200d433d5cfdc629847b5215dece01bc14b963563b29cddd150685b",
+      "case_ids": [
+        "check-file-3/distributed/authorized",
+        "check-file-3/distributed/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "b8ee45ad85786fe811c0c69933ab93ecc2673ebfba6b90603fa4b11cc05f300a",
+      "case_ids": [
+        "check-file-3/nested/authorized",
+        "check-file-3/nested/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "b57dae3ec1ef16e3429acb582a576c8514e5d7a54e060ac272e183c8080b69e6",
+      "case_ids": [
+        "check-file-4/distributed/authorized",
+        "check-file-4/distributed/unauthorized"
+      ]
+    },
+    {
+      "graph_fingerprint": "f21a9d013fcc4844813fdde2abfdf2f024cafe9cb8225527ea9d98e3c43df2ee",
+      "case_ids": [
+        "check-file-4/nested/authorized",
+        "check-file-4/nested/unauthorized"
+      ]
+    }
+  ],
+  "naive_subset": {
+    "signals": {
+      "negative_algebraic_connectivity": {
+        "threshold": -0.3759676595808311,
+        "fit": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 2,
+          "true_positive_rate": 0.6666666666666666,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.8333333333333334
+        },
+        "check": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 2,
+          "true_positive_rate": 0.6666666666666666,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.8333333333333334
+        }
+      },
+      "field_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "any_untrusted_contributor": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "untrusted_field_source_fraction": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 6,
+          "fp": 0,
+          "fn": 6,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_bottleneck": {
+        "threshold": 0.6666666666666667,
+        "fit": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        },
+        "check": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        }
+      },
+      "normalized_max_authority_distance": {
+        "threshold": 0.3076923076923077,
+        "fit": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        },
+        "check": {
+          "tp": 6,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0,
+          "true_positive_rate": 1.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 1.0
+        }
+      }
+    }
+  },
+  "collision_aware": {
+    "signals": {
+      "negative_algebraic_connectivity": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "field_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "any_untrusted_contributor": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_authority_gap": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "untrusted_field_source_fraction": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "contributor_bottleneck": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      },
+      "normalized_max_authority_distance": {
+        "threshold": null,
+        "fit": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        },
+        "check": {
+          "tp": 0,
+          "tn": 12,
+          "fp": 0,
+          "fn": 12,
+          "true_positive_rate": 0.0,
+          "false_positive_rate": 0.0,
+          "accuracy": 0.5
+        }
+      }
+    }
+  }
+}

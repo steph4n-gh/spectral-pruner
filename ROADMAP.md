@@ -57,13 +57,21 @@ recall unmeasurable. A post-study direct source-to-authority reachability rule
 tied the Qwen3 result. This construction therefore does not justify a larger
 study or live tool integration.
 
-The next declared hypothesis should test authority dilution in ambiguous
-multi-source actions where every field has an authority path and both legitimate
-untrusted data and unauthorized influence contribute to the proposed value.
-Acquire confirmed attacks without consulting detector scores, then compare any
-spectral candidate with direct reachability, deny-on-any-untrusted-source,
-support-ratio, and path-length rules. Freeze that protocol before new model
-observations. If a simple rule ties the graph again, stop the action-gate path.
+The [ambiguous-authority result](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-authority-dilution.md)
+stops the single-action gate before model acquisition. On the favorable subset,
+connectivity catches 4/6 redirected graphs while linear bottleneck and distance
+rules catch 6/6 with no observed benign blocks. In the complete screen,
+authorized and unauthorized meanings share identical graphs and every signal
+catches 0/12. Structural provenance either has a simpler sufficient rule or
+omits the authorization fact entirely.
+
+The next LLM hypothesis, if pursued, should move to multi-action agent
+trajectory goal drift. Represent proposed actions, tool results, resource
+transitions, and declared dependencies against protected user constraints. Run
+a pre-model representation audit first, including matched benign and redirected
+plans, collision checks, per-step authorization, goal-distance, weakest-support,
+and local-cut baselines. Acquire model traces only if connectivity strictly adds
+value. Do not add a trajectory API to the crate before that evidence exists.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
