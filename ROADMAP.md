@@ -49,6 +49,22 @@ and 2/120 benign prompts, missing both advancement targets. Stop this bounded
 prefill-detector approach. A different hypothesis needs a separately declared
 experiment; these candidates do not justify a fresh security study or integration.
 
+The [action authorization result](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-action-authorization.md)
+moves the intervention to host-owned provenance and exact proposed actions.
+Qwen3 connectivity caught all 20 confirmed attacks in each development split
+with no observed benign blocks, while Gemma 4 resisted every attack and left
+recall unmeasurable. A post-study direct source-to-authority reachability rule
+tied the Qwen3 result. This construction therefore does not justify a larger
+study or live tool integration.
+
+The next declared hypothesis should test authority dilution in ambiguous
+multi-source actions where every field has an authority path and both legitimate
+untrusted data and unauthorized influence contribute to the proposed value.
+Acquire confirmed attacks without consulting detector scores, then compare any
+spectral candidate with direct reachability, deny-on-any-untrusted-source,
+support-ratio, and path-length rules. Freeze that protocol before new model
+observations. If a simple rule ties the graph again, stop the action-gate path.
+
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
 

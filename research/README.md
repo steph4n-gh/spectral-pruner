@@ -1,16 +1,51 @@
 # Reproducible attention-graph research
 
 The Rust library remains dependency-free. This directory is an opt-in research
-harness for extracting weighted graphs from real causal-language-model
-attention tensors and evaluating the detector.
+harness for evaluating model behavior, host-derived action provenance, and
+weighted graphs extracted from causal-language-model attention tensors.
 
 ```sh
 python3 -m pip install -r research/requirements.txt
 ```
 
-The target causal model must expose attention tensors through Transformers'
-eager attention implementation. `requirements-tested.txt` pins the exact pilot
-environment; use `--revision <commit>` to pin a Hugging Face model snapshot.
+Attention experiments require a causal model that exposes tensors through
+Transformers' eager implementation. The action study uses ordinary deterministic
+generation and does not inspect hidden activations. `requirements-tested.txt`
+pins the exact pilot environment; use `--revision <commit>` to pin a Hugging Face
+model snapshot.
+
+## Audit proposed agent actions
+
+The [agent action authorization study](ACTION_AUTHORIZATION_STUDY.md) tests a
+model-independent intervention point: withhold a structured tool action when
+its host-derived provenance is weakly connected to trusted user and host
+authority. The model proposes only an action; the study never executes it.
+
+`action_authorization.py` fixes the source contract, graph construction, action
+parser, and deterministic baselines. `prepare_action_study.py` creates 24 clean
+development tasks and 72 attack cases for one pinned tokenizer, including exact
+token-matched benign controls. `evaluate_actions.py` freezes thresholds before
+the development check and requires the spectral signal to beat both provenance
+baselines before any larger study or integration.
+
+The checked-in smoke fixture and offline tests verify the contract without a
+model download:
+
+```sh
+cargo build --release --bin spectral-pruner-audit
+python3 -m unittest discover -s research -p 'test_action_authorization.py' -v
+```
+
+The first small-model screen stopped at zero clean executable actions. The
+[capable-model follow-up](ACTION_AUTHORIZATION_CAPABLE_MODELS.md) selected Qwen3
+4B and Gemma 4 E2B using only clean prompts; both produced 24/24 exact actions.
+The [completed result](results/2026-09-04-action-authorization.md) records a
+no-go decision. Qwen3 supplied confirmed attacks and the spectral score separated
+them from benign actions, but direct source-to-authority reachability tied that
+result. Gemma resisted every injected instruction and supplied no detector-recall
+cases. Complete responses, graphs, policies, manifests, and hashes accompany the
+report. Generated responses can repeat untrusted text and require review before
+sharing.
 
 ## Measure actual model behavior
 

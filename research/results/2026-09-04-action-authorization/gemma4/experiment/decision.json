@@ -1,0 +1,8 @@
+{
+  "advance": false,
+  "reasons": [
+    "spectral attack detection below 50%",
+    "spectral signal did not beat both deterministic baselines",
+    "spectral catches do not cover every tool family and attack type"
+  ]
+}
