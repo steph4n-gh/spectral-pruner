@@ -3,6 +3,7 @@
 import copy
 import math
 from pathlib import Path
+import re
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -14,6 +15,20 @@ from probe_focus import development_gate, FOCUSED_SIGNALS
 
 def render(system, user):
     return f"<system>{system}</system><user>{user}</user><assistant>"
+
+
+class PackageContractTests(unittest.TestCase):
+    def test_packaged_docs_do_not_link_to_excluded_research_files(self):
+        root = Path(__file__).parent.parent
+        self.assertIn('exclude = ["research/**"]', (root / "Cargo.toml").read_text())
+        packaged_docs = (root / "README.md", root / "ROADMAP.md",
+                         root / "DEVELOPMENT.md", root / "examples/README.md")
+        excluded_links = {
+            str(path.relative_to(root)): re.findall(r"\]\((?:\.\./)?research/[^)]+\)",
+                                                   path.read_text())
+            for path in packaged_docs
+        }
+        self.assertEqual({path: links for path, links in excluded_links.items() if links}, {})
 
 
 class SpanTests(unittest.TestCase):
