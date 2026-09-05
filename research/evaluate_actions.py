@@ -245,6 +245,8 @@ def parse_args():
     parser.add_argument("--cases", required=True, type=Path)
     parser.add_argument("--model", required=True)
     parser.add_argument("--revision", required=True)
+    parser.add_argument("--backend", choices=("transformers", "mlx"),
+                        default="transformers")
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--max-length", type=int, default=512)
@@ -295,9 +297,9 @@ def main():
     manifest_path = args.output_dir / "run.json"
     write_json(manifest_path, manifest)
     try:
-        from action_runtime import ActionModel
+        from action_runtime import load_action_model
 
-        runtime = ActionModel(args)
+        runtime = load_action_model(args)
         manifest["runtime"] = runtime.metadata
         write_json(manifest_path, manifest)
         run_experiment(cases, args.output_dir, runtime, args)
