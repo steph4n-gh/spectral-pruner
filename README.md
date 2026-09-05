@@ -139,10 +139,16 @@ this release candidate. It reports both positive direct-injection results and
 weak indirect-injection results. It does not establish a production defense
 against prompt injection; those experiments need rerunning after solver changes.
 
-The next milestone is measurable LLM utility: identify successful task hijacks
+The LLM goal is measurable utility: identify successful task hijacks
 while preserving legitimate answers. The [paired behavioral harness](research/BEHAVIORAL_EVALUATION.md)
 measures actual responses and counterfactual withholding with frozen thresholds.
 The [roadmap](ROADMAP.md) defines the evidence needed before building a live integration.
+
+The [verified-attack study](research/results/2026-09-04-verified-attacks.md) now
+provides 144 confirmed evaluation hijacks across two task-capable model families.
+At a 1% calibration false-positive ceiling, the current aggregate
+connectivity signal withheld none. Stronger LLM claims require a better signal
+and fresh evaluation evidence.
 
 ## Develop and verify
 

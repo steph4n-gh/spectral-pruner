@@ -16,6 +16,10 @@ output token. Thresholds are fixed on calibration cases before evaluation.
 The initial exact-answer fixture checks this machinery. It does not establish
 generalization, production safety, or a useful detection rate.
 
+The [verified-attack study](research/results/2026-09-04-verified-attacks.md) adds
+confirmed hijacks on two task-capable model families and benign length controls.
+This provides a behavioral regression corpus; it does not validate a detector.
+
 ## 2. Establish a useful operating point
 
 Evaluate representative tasks with enough clean task capability to make hijacks
@@ -32,6 +36,11 @@ The proposed advancement target is **at least a 50% reduction in successful
 hijacks with no more than 1% of clean requests withheld**, on held-out tasks with
 enough independent examples to assess those rates. These are targets, not results.
 The August pilot's indirect-injection failure remains unresolved.
+
+In the verified study, the calibrated aggregate-connectivity rule withheld none
+of 144 confirmed evaluation hijacks. Investigate improved LLM signals on
+development data before building an integration. Reserve new evaluation cases
+for any tuned method; the published study is now available for inspection.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.

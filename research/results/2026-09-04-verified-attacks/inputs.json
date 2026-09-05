@@ -1,0 +1,12 @@
+{
+  "qwen": {
+    "path": "research/fixtures/verified_attack_qwen.jsonl",
+    "sha256": "069ddc803184993e45b5aa7710d7e138fa81f3ef337f1f54c2b56b81825aa68e",
+    "pairs": 144
+  },
+  "smollm": {
+    "path": "research/fixtures/verified_attack_smollm.jsonl",
+    "sha256": "f459ac8c3424d6b86e73e928d6e92e42504c54b18444adf4f663b06907458d4a",
+    "pairs": 144
+  }
+}
