@@ -11,6 +11,10 @@
   action with no observed benign blocks, but a direct authority-path rule tied
   it; Gemma supplied no successful attacks. Record the no-go integration
   decision and the stronger baseline required by the next hypothesis.
+- Add a pre-model authority-dilution representation audit with stronger linear
+  topology baselines and explicit authorized/unauthorized graph collisions.
+  Require this cheap feasibility screen to pass before acquiring more model
+  attacks or adding an action-gate API.
 
 ## 2.0.0-rc.1 — 2026-09-04
 

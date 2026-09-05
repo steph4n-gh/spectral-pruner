@@ -57,13 +57,14 @@ recall unmeasurable. A post-study direct source-to-authority reachability rule
 tied the Qwen3 result. This construction therefore does not justify a larger
 study or live tool integration.
 
-The next declared hypothesis should test authority dilution in ambiguous
-multi-source actions where every field has an authority path and both legitimate
-untrusted data and unauthorized influence contribute to the proposed value.
-Acquire confirmed attacks without consulting detector scores, then compare any
-spectral candidate with direct reachability, deny-on-any-untrusted-source,
-support-ratio, and path-length rules. Freeze that protocol before new model
-observations. If a simple rule ties the graph again, stop the action-gate path.
+The next declared hypothesis tests authority dilution in ambiguous multi-source
+actions where every field has an authority path and both legitimate untrusted
+data and unauthorized influence can contribute to the same field. The
+[representation audit](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/AUTHORITY_DILUTION_STUDY.md)
+precedes model acquisition. It includes identical graphs with authorized and
+unauthorized meanings and compares connectivity with direct reachability,
+deny-on-untrusted, support, bottleneck, and path-length rules. A semantic graph
+collision or a tied simple rule stops the action-gate path before model work.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
