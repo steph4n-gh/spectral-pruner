@@ -156,6 +156,15 @@ tests task-aware measurements on that now-inspected corpus. Its graph candidate
 catches 16/54 Qwen hijacks but blocks 2/120 benign prompts, missing both utility
 targets. These candidates do not qualify for a live integration.
 
+The [agent-action authorization screen](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-action-authorization.md)
+moves to host-owned provenance and exact proposed actions. Qwen3 produced 40
+confirmed compromises across the two development splits; connectivity caught
+all of them with no observed benign blocks. A direct source-to-authority path
+check tied that result, and Gemma 4 supplied no successful attacks. The result
+does not justify a spectral action gate. The next experiment must create
+ambiguous multi-source actions and beat direct reachability as well as count
+baselines before integration work begins.
+
 ## Develop and verify
 
 ```sh

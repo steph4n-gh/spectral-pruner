@@ -36,14 +36,16 @@ cargo build --release --bin spectral-pruner-audit
 python3 -m unittest discover -s research -p 'test_action_authorization.py' -v
 ```
 
-Full model commands will be recorded with the frozen development results. Give
-each materialized corpus and run a new output path; generated responses can
-repeat untrusted text and require review before sharing.
-
 The first small-model screen stopped at zero clean executable actions. The
 [capable-model follow-up](ACTION_AUTHORIZATION_CAPABLE_MODELS.md) selected Qwen3
 4B and Gemma 4 E2B using only clean prompts; both produced 24/24 exact actions.
-Their frozen selection and complete clean responses accompany the study results.
+The [completed result](results/2026-09-04-action-authorization.md) records a
+no-go decision. Qwen3 supplied confirmed attacks and the spectral score separated
+them from benign actions, but direct source-to-authority reachability tied that
+result. Gemma resisted every injected instruction and supplied no detector-recall
+cases. Complete responses, graphs, policies, manifests, and hashes accompany the
+report. Generated responses can repeat untrusted text and require review before
+sharing.
 
 ## Measure actual model behavior
 
