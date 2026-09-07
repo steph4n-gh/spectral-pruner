@@ -65,13 +65,14 @@ authorized and unauthorized meanings share identical graphs and every signal
 catches 0/12. Structural provenance either has a simpler sufficient rule or
 omits the authorization fact entirely.
 
-The next LLM hypothesis, if pursued, should move to multi-action agent
-trajectory goal drift. Represent proposed actions, tool results, resource
-transitions, and declared dependencies against protected user constraints. Run
-a pre-model representation audit first, including matched benign and redirected
-plans, collision checks, per-step authorization, goal-distance, weakest-support,
-and local-cut baselines. Acquire model traces only if connectivity strictly adds
-value. Do not add a trajectory API to the crate before that evidence exists.
+The next LLM hypothesis has moved to a frozen pre-model audit of multi-action
+agent trajectory goal drift. It represents proposed actions, tool results,
+resource transitions, broad grants, and declared sinks against protected user
+constraints. Matched legitimate and redirected prefixes test collision limits;
+per-step authorization, contract membership, directed goal distance,
+weakest-support, gateway, local-cut, and size rules test whether an eigensolver
+adds value. Acquire model traces only if connectivity passes the complete check.
+Do not add a trajectory API to the crate before that evidence exists.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.
