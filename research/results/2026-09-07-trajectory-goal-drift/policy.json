@@ -1,0 +1,207 @@
+{
+  "case_score_rule": "legitimate maximum over all prefixes; redirected maximum through the first harmful proposal",
+  "collision_aware": {
+    "max_fpr": 0.01,
+    "signals": {
+      "authorization_gap": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "natural_local_cut": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "negative_algebraic_connectivity": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "node_count": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "normalized_goal_distance": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "off_contract_side_effect_fraction": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "single_gateway": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "weakest_goal_support_gap": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      }
+    }
+  },
+  "naive_subset": {
+    "max_fpr": 0.01,
+    "signals": {
+      "authorization_gap": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "natural_local_cut": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "negative_algebraic_connectivity": {
+        "fit": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "threshold": -0.27772118650808236
+      },
+      "node_count": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "normalized_goal_distance": {
+        "fit": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "threshold": 0.6666666666666666
+      },
+      "off_contract_side_effect_fraction": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "single_gateway": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "weakest_goal_support_gap": {
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      }
+    }
+  },
+  "schema_version": 1,
+  "selection_rule": "maximize fit recall at the declared case-level FPR ceiling, then accuracy, then threshold"
+}

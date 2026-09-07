@@ -166,10 +166,15 @@ does not justify a spectral action gate.
 The [ambiguous-authority follow-up](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-authority-dilution.md)
 stops that product path before another model run. Linear bottleneck and path
 rules beat connectivity on the favorable subset, while authorized and
-unauthorized meanings collide on identical graphs in the complete screen. Any
-future LLM work should test multi-action trajectory goal drift, where the
-kernel's graph-partitioning behavior has a clearer role, and must first pass the
-same representation and simple-baseline checks.
+unauthorized meanings collide on identical graphs in the complete screen.
+
+The [multi-action trajectory follow-up](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-07-trajectory-goal-drift.md)
+also stops before model acquisition. Connectivity ties directed goal distance
+on one favorable sidecar-versus-braided contrast repeated across three tool
+families. Legitimate and redirected meanings collide on identical graphs in the
+complete check. No fitted threshold can fire while meeting the false-positive
+ceiling, and the resulting no-block policies have zero recall. This
+representation does not justify model traces or a trajectory API.
 
 ## Develop and verify
 

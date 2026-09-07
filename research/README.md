@@ -63,6 +63,10 @@ authorization, contract, directed-distance, support, gateway, local-cut, and
 size rules; and reports both topology collisions and distinctions in the
 supplied story context. Its policy must be persisted after mechanism fit and
 before any mechanism-check graph is built or audited.
+The [completed result](results/2026-09-07-trajectory-goal-drift.md) stops this
+path: connectivity ties directed goal distance on the favorable subset, while
+legitimate and redirected meanings collide on identical graphs in the complete
+check. No model traces or trajectory API are justified for this representation.
 
 ## Measure actual model behavior
 

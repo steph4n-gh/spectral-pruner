@@ -26,6 +26,10 @@
   report semantic collision bounds; and compare connectivity with seven simple
   deterministic signals before permitting model-trace acquisition or a
   trajectory API.
+- Record the trajectory goal-drift no-go result. Connectivity ties directed
+  goal distance on the favorable topology subset, while matched legitimate and
+  redirected meanings collide on identical graphs in the complete check. Stop
+  model acquisition and leave the crate without a trajectory API.
 
 ## 2.0.0-rc.1 — 2026-09-04
 
