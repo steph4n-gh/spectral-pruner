@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "arguments": {
+    "output_dir": "research/results/2026-09-04-authority-dilution",
+    "auditor": "/Volumes/Storage/bigworkspace/spectral-pruner/target/release/spectral-pruner-audit",
+    "max_fpr": 0.01
+  },
+  "python": "3.14.4 (main, Apr  7 2026, 13:13:20) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "auditor_sha256": "897dd933986c9f76fd545f0bd77a84046784da4556615e6af553df2db3a2cfa1",
+  "source_sha256": {
+    "AUTHORITY_DILUTION_STUDY.md": "78b795f43e84ed505ee3ac3b7b705d44f0b9d7c07810e1916734baf7b3ad4fec",
+    "authority_dilution.py": "f2ac59a4bf77106d8b5f1a1a18b71dd0efd33ba91ed00fb41c26946cd6c9c40d",
+    "evaluate_authority_dilution.py": "bdea80ee85791669244e230cca8f06cffe1dd16d4798f9ce85b986bedda0d803",
+    "calibrate.py": "b3c41cfd94b5e6d04c755faae68639916b5bb4af2d867735abb13a2982cdcd7b"
+  },
+  "observations_sha256": "bcf1284840129071d5de11eb7285ee1990aa139f8268cdbd122eaaa1a76b15db",
+  "policy_sha256": "44914951f0b3efd401a27a48f35b1c2e6e9d630be359f164751217ce3b35ade1",
+  "summary_sha256": "5e043c315c35a13c9f09e47bb5fe88a0004368805306141b8c562acf9b97f4a6"
+}

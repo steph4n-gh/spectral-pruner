@@ -47,6 +47,14 @@ cases. Complete responses, graphs, policies, manifests, and hashes accompany the
 report. Generated responses can repeat untrusted text and require review before
 sharing.
 
+The [authority dilution representation audit](AUTHORITY_DILUTION_STUDY.md)
+tests the next hypothesis before another model run. It requires every field and
+untrusted contributor to reach authority, compares connectivity with strong
+linear topology rules, and includes authorized/unauthorized semantic collisions
+that produce identical graphs. The [completed result](results/2026-09-04-authority-dilution.md)
+stops model acquisition: simple bottleneck and path rules beat connectivity on
+the naive subset, and all graph-only signals fail on the collision-aware set.
+
 ## Measure actual model behavior
 
 The [paired behavioral harness](BEHAVIORAL_EVALUATION.md) is the next LLM research

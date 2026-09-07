@@ -161,9 +161,15 @@ moves to host-owned provenance and exact proposed actions. Qwen3 produced 40
 confirmed compromises across the two development splits; connectivity caught
 all of them with no observed benign blocks. A direct source-to-authority path
 check tied that result, and Gemma 4 supplied no successful attacks. The result
-does not justify a spectral action gate. The next experiment must create
-ambiguous multi-source actions and beat direct reachability as well as count
-baselines before integration work begins.
+does not justify a spectral action gate.
+
+The [ambiguous-authority follow-up](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-04-authority-dilution.md)
+stops that product path before another model run. Linear bottleneck and path
+rules beat connectivity on the favorable subset, while authorized and
+unauthorized meanings collide on identical graphs in the complete screen. Any
+future LLM work should test multi-action trajectory goal drift, where the
+kernel's graph-partitioning behavior has a clearer role, and must first pass the
+same representation and simple-baseline checks.
 
 ## Develop and verify
 
