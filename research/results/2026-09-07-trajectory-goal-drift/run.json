@@ -1,0 +1,39 @@
+{
+  "arguments": {
+    "auditor": "/Volumes/Storage/bigworkspace/spectral-pruner/target/release/spectral-pruner-audit",
+    "max_fpr": 0.01,
+    "output_dir": "research/results/2026-09-07-trajectory-goal-drift"
+  },
+  "artifact_sha256": {
+    "cases.json": "476c028da59634e884378841af990b20febe4ab79df15e0795e07d59e6aff782",
+    "decision.json": "51466ab4947017c3f30c7db068da8d644a0ca87196a9c69e26d614840695b38d",
+    "observations.jsonl": "16da57dd8c4daa1903f3f98e6593fe598f42bc5fd92d784d0c1430c34cb2907f",
+    "policy.json": "30c0a63e4dd0f006bf996522683fd9fa0c2bbc51f58b08272595810974d91885",
+    "summary.json": "877c60bad318f66f94fd21c979b43e5e67c00de3211b644de4d6de83046a2c6a"
+  },
+  "auditor_settings": {
+    "density_enabled": false,
+    "instruction_neglect_enabled": false,
+    "max_iterations": 100000,
+    "single_token_tripwire_enabled": false,
+    "tolerance": 1e-09
+  },
+  "auditor_sha256": "897dd933986c9f76fd545f0bd77a84046784da4556615e6af553df2db3a2cfa1",
+  "branch": "codex/trajectory-goal-drift",
+  "cases_sha256": "476c028da59634e884378841af990b20febe4ab79df15e0795e07d59e6aff782",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "protocol_commit": "bef59c12cf9ea37fa36088e0905687d15bb8cb86",
+  "python": "3.14.4 (main, Apr  7 2026, 13:13:20) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "schema_version": 1,
+  "source_commit_verified": true,
+  "source_sha256": {
+    "TRAJECTORY_GOAL_DRIFT_STUDY.md": "cd533fb0f90d0c31f7ad85b75de78cd1c1d1848f9f2771f6d5773c76351a9c39",
+    "authority_dilution.py": "f2ac59a4bf77106d8b5f1a1a18b71dd0efd33ba91ed00fb41c26946cd6c9c40d",
+    "calibrate.py": "b3c41cfd94b5e6d04c755faae68639916b5bb4af2d867735abb13a2982cdcd7b",
+    "evaluate_trajectory_goal_drift.py": "869dd81eb3e415b00c570ff2ffcca9ee04868d260d08776ff5c64fd7062d85d5",
+    "test_trajectory_goal_drift.py": "ffe5933ddd36ac24c8f5d51b808fe2ff563985bb21ebc0452b3ad64261380e0e",
+    "trajectory_goal_drift.py": "225e90ba20f76618dfccf4253f10398a28a3ef4d1a4e6fd0fac6caa055f5935e"
+  },
+  "status": "complete",
+  "working_tree_clean": true
+}

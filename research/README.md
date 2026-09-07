@@ -55,6 +55,19 @@ that produce identical graphs. The [completed result](results/2026-09-04-authori
 stops model acquisition: simple bottleneck and path rules beat connectivity on
 the naive subset, and all graph-only signals fail on the collision-aware set.
 
+The [multi-action trajectory audit](TRAJECTORY_GOAL_DRIFT_STUDY.md) tests the
+next roadmap hypothesis without acquiring model traces. It builds every prefix
+from host-observed actions and host-validated state, version, grant, and sink
+facts; checks the first harmful proposal; compares connectivity with
+authorization, contract, directed-distance, support, gateway, local-cut, and
+size rules; and reports both topology collisions and distinctions in the
+supplied story context. Its policy must be persisted after mechanism fit and
+before any mechanism-check graph is built or audited.
+The [completed result](results/2026-09-07-trajectory-goal-drift.md) stops this
+path: connectivity ties directed goal distance on the favorable subset, while
+legitimate and redirected meanings collide on identical graphs in the complete
+check. No model traces or trajectory API are justified for this representation.
+
 ## Measure actual model behavior
 
 The [paired behavioral harness](BEHAVIORAL_EVALUATION.md) is the next LLM research

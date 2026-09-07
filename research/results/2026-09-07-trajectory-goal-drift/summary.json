@@ -1,0 +1,680 @@
+{
+  "check_cases": 12,
+  "collision_aware": {
+    "signals": {
+      "authorization_gap": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "natural_local_cut": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "negative_algebraic_connectivity": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "node_count": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "normalized_goal_distance": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "off_contract_side_effect_fraction": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "single_gateway": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "weakest_goal_support_gap": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 6,
+          "fp": 0,
+          "tn": 6,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      }
+    }
+  },
+  "comparison_prefix_index": 2,
+  "coverage": {
+    "cells": [
+      [
+        "file",
+        "braided",
+        0
+      ],
+      [
+        "file",
+        "braided",
+        1
+      ],
+      [
+        "file",
+        "sidecar",
+        0
+      ],
+      [
+        "file",
+        "sidecar",
+        1
+      ],
+      [
+        "message",
+        "braided",
+        0
+      ],
+      [
+        "message",
+        "braided",
+        1
+      ],
+      [
+        "message",
+        "sidecar",
+        0
+      ],
+      [
+        "message",
+        "sidecar",
+        1
+      ],
+      [
+        "service",
+        "braided",
+        0
+      ],
+      [
+        "service",
+        "braided",
+        1
+      ],
+      [
+        "service",
+        "sidecar",
+        0
+      ],
+      [
+        "service",
+        "sidecar",
+        1
+      ]
+    ],
+    "complete": true,
+    "families": [
+      "file",
+      "message",
+      "service"
+    ],
+    "motifs": [
+      "braided",
+      "sidecar"
+    ]
+  },
+  "delegation_sanity": {
+    "delegated_graph_fingerprint": "6de5a92681e6fc440eecaec72b98a950bd5207877aeb89784e259cdce49985b7",
+    "delegated_off_contract_score": 0.0,
+    "graph_changed": true,
+    "original_graph_fingerprint": "a799ffb38aeda566f719881437ca300efb920a42e3b009114670df754cc2553d",
+    "original_off_contract_score": 1.0
+  },
+  "equivalence": {
+    "auditor_input": {
+      "cross_label_groups": [
+        {
+          "case_ids": [
+            "check-file-sidecar/legitimate",
+            "check-file-sidecar/redirected",
+            "check-message-sidecar/legitimate",
+            "check-message-sidecar/redirected",
+            "check-service-sidecar/legitimate",
+            "check-service-sidecar/redirected"
+          ],
+          "fingerprint": "a799ffb38aeda566f719881437ca300efb920a42e3b009114670df754cc2553d",
+          "legitimate": 3,
+          "redirected": 3
+        },
+        {
+          "case_ids": [
+            "check-file-braided/legitimate",
+            "check-file-braided/redirected",
+            "check-message-braided/legitimate",
+            "check-message-braided/redirected",
+            "check-service-braided/legitimate",
+            "check-service-braided/redirected"
+          ],
+          "fingerprint": "e9d8374b1b983ac4c1b5b3f642c5d7db489d7bb89c6c53fedfc2d289f004b6c9",
+          "legitimate": 3,
+          "redirected": 3
+        }
+      ],
+      "equivalence_classes": 2,
+      "maximum_recall_at_zero_false_positives": 0.0,
+      "unavoidable_errors": 6
+    },
+    "canonical_mechanical": {
+      "cross_label_groups": [
+        {
+          "case_ids": [
+            "check-file-braided/legitimate",
+            "check-file-braided/redirected"
+          ],
+          "fingerprint": "2656aaef79c337dc935b4a005baf832f28b21eaaa48ac0a6c1b3a30be97a12a0",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-message-braided/legitimate",
+            "check-message-braided/redirected"
+          ],
+          "fingerprint": "2c4d4623ee8f146f1a0620b7f664ca020044befa287d946b8a21822ea756112b",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-message-sidecar/legitimate",
+            "check-message-sidecar/redirected"
+          ],
+          "fingerprint": "67a6c9f634f0491340952cc299a26cc98dfad5c57fe1484cedb52152b8f25a18",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-service-braided/legitimate",
+            "check-service-braided/redirected"
+          ],
+          "fingerprint": "8722b43f0fc98f9a5a0007a2aa110233edcf9c686d9af2c21d6ffc0dfd349ba9",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-service-sidecar/legitimate",
+            "check-service-sidecar/redirected"
+          ],
+          "fingerprint": "ad0cd62a5fffb034d123491bbd7a5d0df5d51fa4f3a38fa9bef283fcd0319899",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-file-sidecar/legitimate",
+            "check-file-sidecar/redirected"
+          ],
+          "fingerprint": "b71041c9d5a3f5227dcca9475700fc91a5d587934d21b3a0918806f0a2645bb6",
+          "legitimate": 1,
+          "redirected": 1
+        }
+      ],
+      "equivalence_classes": 6,
+      "maximum_recall_at_zero_false_positives": 0.0,
+      "unavoidable_errors": 6
+    },
+    "exact_mechanical": {
+      "cross_label_groups": [
+        {
+          "case_ids": [
+            "check-file-sidecar/legitimate",
+            "check-file-sidecar/redirected"
+          ],
+          "fingerprint": "036106935d9ceae65b32b43d490ecafffb234643a8398e8741c6170d351f51d1",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-file-braided/legitimate",
+            "check-file-braided/redirected"
+          ],
+          "fingerprint": "60a2e22e48084eebdbb148bff8160c5ee6146beb4e6c55628acb4b426937111f",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-message-braided/legitimate",
+            "check-message-braided/redirected"
+          ],
+          "fingerprint": "8d0831765aa64521b6f7293a5d7b17a03bffb192d237b00a41a48b02ab531517",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-service-sidecar/legitimate",
+            "check-service-sidecar/redirected"
+          ],
+          "fingerprint": "92bc38aa08acbf5b67379b92b452868bc475d20c33d7d021a930deafdd791da0",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-message-sidecar/legitimate",
+            "check-message-sidecar/redirected"
+          ],
+          "fingerprint": "936a402769ee25ffcc42506aad98a3b9f9f93187c2b6f90cbeb3830903cbe81f",
+          "legitimate": 1,
+          "redirected": 1
+        },
+        {
+          "case_ids": [
+            "check-service-braided/legitimate",
+            "check-service-braided/redirected"
+          ],
+          "fingerprint": "d0808f2e6790e16d3f6bb217964457ebb2df76c63ad5e40c533bd10e6043fbcc",
+          "legitimate": 1,
+          "redirected": 1
+        }
+      ],
+      "equivalence_classes": 6,
+      "maximum_recall_at_zero_false_positives": 0.0,
+      "unavoidable_errors": 6
+    },
+    "signal_vector": {
+      "cross_label_groups": [
+        {
+          "case_ids": [
+            "check-file-braided/legitimate",
+            "check-file-braided/redirected",
+            "check-message-braided/legitimate",
+            "check-message-braided/redirected",
+            "check-service-braided/legitimate",
+            "check-service-braided/redirected"
+          ],
+          "fingerprint": "0806f6aba1560d6067a26eeeac76aa28fa2463ac63149c2969ed4e8b3c9ac29d",
+          "legitimate": 3,
+          "redirected": 3
+        },
+        {
+          "case_ids": [
+            "check-file-sidecar/legitimate",
+            "check-file-sidecar/redirected",
+            "check-message-sidecar/legitimate",
+            "check-message-sidecar/redirected",
+            "check-service-sidecar/legitimate",
+            "check-service-sidecar/redirected"
+          ],
+          "fingerprint": "900aec484afb7292eb31df64d34a11a0abb2d4452f8237ff5b89de501a87875a",
+          "legitimate": 3,
+          "redirected": 3
+        }
+      ],
+      "equivalence_classes": 2,
+      "maximum_recall_at_zero_false_positives": 0.0,
+      "unavoidable_errors": 6
+    },
+    "story_augmented": {
+      "cross_label_groups": [],
+      "equivalence_classes": 12,
+      "maximum_recall_at_zero_false_positives": 1.0,
+      "unavoidable_errors": 0
+    }
+  },
+  "fit_cases": 12,
+  "naive_subset": {
+    "signals": {
+      "authorization_gap": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "natural_local_cut": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "negative_algebraic_connectivity": {
+        "check": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "fit": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "threshold": -0.27772118650808236
+      },
+      "node_count": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "normalized_goal_distance": {
+        "check": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "fit": {
+          "accuracy": 1.0,
+          "false_positive_rate": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "tn": 3,
+          "tp": 3,
+          "true_positive_rate": 1.0
+        },
+        "threshold": 0.6666666666666666
+      },
+      "off_contract_side_effect_fraction": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "single_gateway": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      },
+      "weakest_goal_support_gap": {
+        "check": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "fit": {
+          "accuracy": 0.5,
+          "false_positive_rate": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "tn": 3,
+          "tp": 0,
+          "true_positive_rate": 0.0
+        },
+        "threshold": null
+      }
+    }
+  },
+  "numerics": {
+    "all_converged": true,
+    "all_signals_finite": true,
+    "maximum_relative_residual": 9.830364261641496e-10,
+    "prefix_graphs": 96
+  },
+  "schema_version": 1,
+  "spectral_detection_timing": {
+    "cases": [
+      {
+        "case_id": "check-message-sidecar/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      },
+      {
+        "case_id": "check-message-braided/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      },
+      {
+        "case_id": "check-file-sidecar/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      },
+      {
+        "case_id": "check-file-braided/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      },
+      {
+        "case_id": "check-service-sidecar/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      },
+      {
+        "case_id": "check-service-braided/redirected",
+        "first_harmful_prefix": 2,
+        "first_trigger_prefix": null,
+        "status": "missed"
+      }
+    ],
+    "caught_after_harm": 0,
+    "caught_by_or_before_harm": 0,
+    "missed": 6
+  },
+  "unique_auditor_inputs_at_comparison_prefix": {
+    "mechanism_check": 2,
+    "mechanism_fit": 2
+  }
+}

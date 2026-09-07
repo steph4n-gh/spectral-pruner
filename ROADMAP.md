@@ -65,13 +65,15 @@ authorized and unauthorized meanings share identical graphs and every signal
 catches 0/12. Structural provenance either has a simpler sufficient rule or
 omits the authorization fact entirely.
 
-The next LLM hypothesis, if pursued, should move to multi-action agent
-trajectory goal drift. Represent proposed actions, tool results, resource
-transitions, and declared dependencies against protected user constraints. Run
-a pre-model representation audit first, including matched benign and redirected
-plans, collision checks, per-step authorization, goal-distance, weakest-support,
-and local-cut baselines. Acquire model traces only if connectivity strictly adds
-value. Do not add a trajectory API to the crate before that evidence exists.
+The [multi-action trajectory result](https://github.com/steph4n-gh/spectral-pruner/blob/main/research/results/2026-09-07-trajectory-goal-drift.md)
+stops the next path before model acquisition. Connectivity and directed goal
+distance both separate all three repeated family instances of one favorable
+sidecar-versus-braided contrast. In the complete check, legitimate and
+redirected meanings share identical graphs, so all fitted thresholds are null
+and the no-block policies catch 0/6. Do not acquire model traces or add a
+trajectory API for this representation. A future hypothesis must mechanically
+encode goal alignment or evaluate a frozen semantic representation, then show
+value beyond simpler deterministic rules.
 
 Done means evidence that the spectral signal improves a useful operating point
 over simple baselines. If it cannot, reconsider the signal before adding a product.

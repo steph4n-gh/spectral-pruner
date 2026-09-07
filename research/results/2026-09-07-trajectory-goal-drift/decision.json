@@ -1,0 +1,10 @@
+{
+  "add_trajectory_api": false,
+  "advance_to_model_acquisition": false,
+  "reasons": [
+    "first-harmful prefixes have cross-label Rust-input collisions",
+    "spectral fit produced no finite operating threshold",
+    "spectral check recall is below 50%",
+    "spectral recall does not strictly beat eligible deterministic signals: authorization_gap, off_contract_side_effect_fraction, normalized_goal_distance, weakest_goal_support_gap, single_gateway, natural_local_cut, node_count"
+  ]
+}

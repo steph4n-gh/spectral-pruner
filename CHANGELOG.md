@@ -13,13 +13,23 @@
   decision and the stronger baseline required by the next hypothesis.
 - Add a pre-model authority-dilution representation audit with stronger linear
   topology baselines and explicit authorized/unauthorized graph collisions.
-  Require this cheap feasibility screen to pass before acquiring more model
+  Require this pre-model feasibility screen to pass before acquiring more model
   attacks or adding an action-gate API.
 - Record the authority-dilution no-go result. Linear bottleneck and path rules
   outperform connectivity on the naive subset, and opposite authorization
   meanings collide on identical graphs in the complete screen. Stop the
   single-action gate and require a representation audit before any trajectory
   goal-drift study.
+- Add a frozen prefix-level representation audit for multi-action trajectory
+  goal drift. Restrict graph inputs to host-observed actions and host-validated
+  state versions, grants, and declared sinks; preserve intervention timing;
+  report semantic collision bounds; and compare connectivity with seven simple
+  deterministic signals before permitting model-trace acquisition or a
+  trajectory API.
+- Record the trajectory goal-drift no-go result. Connectivity ties directed
+  goal distance on the favorable topology subset, while matched legitimate and
+  redirected meanings collide on identical graphs in the complete check. Stop
+  model acquisition and leave the crate without a trajectory API.
 
 ## 2.0.0-rc.1 — 2026-09-04
 
